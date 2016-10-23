@@ -1,0 +1,132 @@
+[
+  {
+    "name": "Portfolio 1",
+    "proportion": 0.2,
+    "capabilities": [
+      {
+        "name": "Capability 1",
+        "proportion": 0.2
+      },
+      {
+        "name": "Capability 2",
+        "proportion": 0.5
+      },
+      {
+        "name": "Capability 3",
+        "proportion": 0.0
+      },
+      {
+        "name": "Capability 4",
+        "proportion": 0.2
+      },
+      {
+        "name": "Capability 5",
+        "proportion": 0.1
+      }
+    ]
+  },
+  {
+    "name": "Portfolio 2",
+    "proportion": 0.4,
+    "capabilities": [
+      {
+        "name": "Capability 1",
+        "proportion": 0.25
+      },
+      {
+        "name": "Capability 2",
+        "proportion": 0.25
+      },
+      {
+        "name": "Capability 3",
+        "proportion": 0.25
+      },
+      {
+        "name": "Capability 4",
+        "proportion": 0.1
+      },
+      {
+        "name": "Capability 5",
+        "proportion": 0.15
+      }
+    ]
+  },
+  {
+    "name": "Portfolio 3",
+    "proportion": 0.1,
+    "capabilities": [
+      {
+        "name": "Capability 1",
+        "proportion": 0.8
+      },
+      {
+        "name": "Capability 2",
+        "proportion": 0.05
+      },
+      {
+        "name": "Capability 3",
+        "proportion": 0.05
+      },
+      {
+        "name": "Capability 4",
+        "proportion": 0.1
+      },
+      {
+        "name": "Capability 5",
+        "proportion": 0
+      }
+    ]
+  },
+  {
+    "name": "Portfolio 4",
+    "proportion": 0.2,
+    "capabilities": [
+      {
+        "name": "Capability 1",
+        "proportion": 0.6
+      },
+      {
+        "name": "Capability 2",
+        "proportion": 0
+      },
+      {
+        "name": "Capability 3",
+        "proportion": 0.3
+      },
+      {
+        "name": "Capability 4",
+        "proportion": 0.1
+      },
+      {
+        "name": "Capability 5",
+        "proportion": 0
+      }
+    ]
+  },
+  {
+    "name": "Portfolio 5",
+    "proportion": 0.1,
+    "capabilities": [
+      {
+        "name": "Capability 1",
+        "proportion": 0.1
+      },
+      {
+        "name": "Capability 2",
+        "proportion": 0.2
+      },
+      {
+        "name": "Capability 3",
+        "proportion": 0.3
+      },
+      {
+        "name": "Capability 4",
+        "proportion": 0.1
+      },
+      {
+        "name": "Capability 5",
+        "proportion": 0.3
+      }
+    ]
+  }
+]

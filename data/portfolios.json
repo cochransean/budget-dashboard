@@ -1,0 +1,127 @@
+[
+  {
+    "name": "Portfolio 1",
+    "capabilities": [
+      {
+        "name": "Capability 1",
+        "value": 12
+      },
+      {
+        "name": "Capability 2",
+        "value": 30
+      },
+      {
+        "name": "Capability 3",
+        "value": 65
+      },
+      {
+        "name": "Capability 4",
+        "value": 22
+      },
+      {
+        "name": "Capability 5",
+        "value": 5
+      }
+    ]
+  },
+  {
+    "name": "Portfolio 2",
+    "capabilities": [
+      {
+        "name": "Capability 1",
+        "value": 12
+      },
+      {
+        "name": "Capability 2",
+        "value": 30
+      },
+      {
+        "name": "Capability 3",
+        "value": 65
+      },
+      {
+        "name": "Capability 4",
+        "value": 22
+      },
+      {
+        "name": "Capability 5",
+        "value": 5
+      }
+    ]
+  },
+  {
+    "name": "Portfolio 3",
+    "capabilities": [
+      {
+        "name": "Capability 1",
+        "value": 12
+      },
+      {
+        "name": "Capability 2",
+        "value": 30
+      },
+      {
+        "name": "Capability 3",
+        "value": 65
+      },
+      {
+        "name": "Capability 4",
+        "value": 22
+      },
+      {
+        "name": "Capability 5",
+        "value": 5
+      }
+    ]
+  },
+  {
+    "name": "Portfolio 4",
+    "capabilities": [
+      {
+        "name": "Capability 1",
+        "value": 12
+      },
+      {
+        "name": "Capability 2",
+        "value": 30
+      },
+      {
+        "name": "Capability 3",
+        "value": 65
+      },
+      {
+        "name": "Capability 4",
+        "value": 22
+      },
+      {
+        "name": "Capability 5",
+        "value": 5
+      }
+    ]
+  },
+  {
+    "name": "Portfolio 5",
+    "capabilities": [
+      {
+        "name": "Capability 1",
+        "value": 12
+      },
+      {
+        "name": "Capability 2",
+        "value": 30
+      },
+      {
+        "name": "Capability 3",
+        "value": 65
+      },
+      {
+        "name": "Capability 4",
+        "value": 22
+      },
+      {
+        "name": "Capability 5",
+        "value": 5
+      }
+    ]
+  }
+]
