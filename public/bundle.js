@@ -78,19 +78,28 @@
 	    var _iteratorError = undefined;
 
 	    try {
-
-	        for (var _iterator = portfolios[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	        var _loop = function _loop() {
 	            var portfolio = _step.value;
 
 
-	            // Calculate total value of each portfolio because the proportion data will need it
-	            portfolio.value = portfolio.capabilities.reduce(function (prev, current) {
+	            // Clean up data
+	            portfolio.capabilities.forEach(function (capability) {
 
 	                // Cast to numeric while iterating anyway
-	                current.value = +current.value;
+	                capability.value = +capability.value;
 
+	                // Track portfolio name
+	                capability.portfolio = portfolio.name;
+	            });
+
+	            // Calculate total value of each portfolio because the proportion data will need it
+	            portfolio.value = portfolio.capabilities.reduce(function (prev, current) {
 	                return { value: prev.value + current.value };
 	            }).value;
+	        };
+
+	        for (var _iterator = portfolios[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	            _loop();
 	        }
 	    } catch (err) {
 	        _didIteratorError = true;
@@ -127,6 +136,9 @@
 	                    var capability = _step3.value;
 
 	                    capability.proportion = +capability.proportion;
+
+	                    // Track portfolio name
+	                    capability.portfolio = _portfolio.name;
 	                }
 	            } catch (err) {
 	                _didIteratorError3 = true;
@@ -769,9 +781,10 @@
 	            vis.svg = chartDiv.append("svg").attr("width", vis.width + vis.margin.left + vis.margin.right).attr("height", vis.height + vis.margin.top + vis.margin.bottom).append("g").attr("transform", "translate(" + vis.margin.left + "," + vis.margin.top + ")");
 
 	            // Scales and axes
-	            vis.x = d3.scaleBand().paddingInner([0.2]).rangeRound([0, vis.width]);
-	            vis.y = d3.scaleLinear().range([vis.height, 0]);
-	            vis.xAxis = d3.axisBottom(vis.x);
+	            vis.x0 = d3.scaleBand().paddingInner([0.2]).rangeRound([0, vis.width]);
+	            vis.x1 = d3.scaleBand();
+	            vis.y = d3.scaleLinear().range([0, vis.height]);
+	            vis.xAxis = d3.axisBottom(vis.x0);
 	            vis.yAxis = d3.axisLeft(vis.y);
 	            vis.xAxisGroup = vis.svg.append('g').attr('transform', 'translate(0,' + vis.height + ')');
 	            vis.yAxisGroup = vis.svg.append('g');
@@ -788,8 +801,19 @@
 
 	            // Don't filter if no portfolio is selected
 	            if (vis.portfolioSelected === null) {
-	                vis.filteredPortfolios = vis.portfolios;
-	                vis.filteredConsensus = vis.consensus;
+	                (function () {
+
+	                    // Combine all capabilities into one array
+	                    var arraysToFlatten = [[], []];
+	                    [vis.portfolios, vis.consensus].forEach(function (array, index) {
+	                        array.forEach(function (portfolio) {
+	                            arraysToFlatten[index].push(portfolio.capabilities);
+	                        });
+	                    });
+
+	                    vis.filteredPortfolios = [].concat.apply([], arraysToFlatten[0]);
+	                    vis.filteredConsensus = [].concat.apply([], arraysToFlatten[1]);
+	                })();
 	            }
 
 	            // Otherwise, filter based on the selection
@@ -807,26 +831,72 @@
 	            var vis = this;
 
 	            // Determine if highest value is in portfolios or consensus to setup axes
-	            var maxPortfolio = d3.max(vis.filteredPortfolios, function (d) {
+	            var maxPortfolio = d3.max(vis.portfolios, function (d) {
 	                return d.value;
 	            });
-	            var maxConsensus = d3.max(vis.filteredConsensus, function (d) {
+	            var maxConsensus = d3.max(vis.consensus, function (d) {
 	                return d.value;
 	            });
 	            var maxYValue = d3.max([maxPortfolio, maxConsensus]);
 
 	            // Update axes
-	            vis.x.domain(vis.filteredPortfolios.map(function (value) {
-	                return value.name;
-	            }));
+	            vis.x1.domain(['Programmed Value', 'Expert-Assessed Value']).rangeRound([0, vis.x0.bandwidth()]);
 	            vis.y.domain([0, maxYValue]);
 
-	            // Selections for the bars
-	            var actualValueBars = vis.svg.selectAll('.bar-value').data(vis.filteredPortfolios);
-	            var consensusBars = vis.svg.selectAll('.bar-consensus').data(vis.filteredConsensus);
+	            // Select data; will always be selected based on capability name since bars are stacked capes even in portfolio
+	            // view.
+	            var actualValueBars = vis.svg.selectAll('.bar-value').data(vis.filteredPortfolios, function (d) {
+	                return d.name;
+	            });
+	            var consensusBars = vis.svg.selectAll('.bar-consensus').data(vis.filteredConsensus, function (d) {
+	                return d.name;
+	            });
 
-	            console.log(vis.filteredPortfolios);
-	            console.log(vis.filteredConsensus);
+	            if (vis.portfolioSelected === null) {
+	                (function () {
+
+	                    var cumulativeActual = {};
+	                    var cumulativeConsensus = {};
+
+	                    // Update axis with portfolio names
+	                    var portfolioNames = vis.portfolios.map(function (value) {
+	                        return value.name;
+	                    });
+
+	                    // Track current Y position for each bar
+	                    portfolioNames.forEach(function (name) {
+	                        cumulativeActual[name] = 0;
+	                        cumulativeConsensus[name] = 0;
+	                    });
+	                    vis.x0.domain(portfolioNames);
+
+	                    actualValueBars.enter().append('rect').merge(actualValueBars).attr('x', function (d) {
+	                        return vis.x0(d.portfolio);
+	                    }).attr('y', function (d) {
+	                        var current = vis.y(d.value);
+	                        var position = vis.height - cumulativeActual[d.portfolio] - current;
+	                        cumulativeActual[d.portfolio] += current;
+	                        return position;
+	                    }).attr('height', function (d) {
+	                        return vis.y(d.value);
+	                    }).attr('width', function (d) {
+	                        return vis.x0.bandwidth() / 2;
+	                    }).attr('class', 'bar-value');
+
+	                    consensusBars.enter().append('rect').merge(consensusBars).attr('x', function (d) {
+	                        return vis.x0(d.portfolio) + vis.x0.bandwidth() / 2;
+	                    }).attr('y', function (d) {
+	                        var current = vis.y(d.value);
+	                        var position = vis.height - cumulativeConsensus[d.portfolio] - current;
+	                        cumulativeConsensus[d.portfolio] += current;
+	                        return position;
+	                    }).attr('height', function (d) {
+	                        return vis.y(d.value);
+	                    }).attr('width', function (d) {
+	                        return vis.x0.bandwidth() / 2;
+	                    }).attr('class', 'bar-consensus');
+	                })();
+	            }
 	        }
 	    }, {
 	        key: "calcConsensus",
@@ -834,11 +904,16 @@
 
 	            var vis = this;
 
+	            // Get total value of all actual portfolios and calculate what each should have based on consensus
+	            var totalActual = vis.portfolios.reduce(function (prev, current) {
+	                return { value: prev.value + current.value };
+	            }).value;
+
 	            // Calculate the dollar value of expert consensus
 	            // TODO average expert consensus based on where the slider is once implemented
 	            // TODO this function should only be called on init and when sliders change
 	            for (var i = 0; i < vis.consensus.length; i++) {
-	                vis.consensus[i].value = vis.consensus[i].proportion * vis.portfolios[i].value;
+	                vis.consensus[i].value = vis.consensus[i].proportion * totalActual;
 	                for (var j = 0; j < vis.consensus[i].capabilities.length; j++) {
 	                    vis.consensus[i].capabilities[j].value = vis.consensus[i].capabilities[j].proportion * vis.consensus[i].value;
 	                }

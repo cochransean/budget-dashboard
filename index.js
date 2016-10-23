@@ -19,12 +19,18 @@ function prepData(portfolios, consensus) {
 
     for (let portfolio of portfolios) {
 
-        // Calculate total value of each portfolio because the proportion data will need it
-        portfolio.value = portfolio.capabilities.reduce((prev, current) => {
+        // Clean up data
+        portfolio.capabilities.forEach(function(capability){
 
             // Cast to numeric while iterating anyway
-            current.value = +current.value;
+            capability.value = +capability.value;
 
+            // Track portfolio name
+            capability.portfolio = portfolio.name;
+        });
+
+        // Calculate total value of each portfolio because the proportion data will need it
+        portfolio.value = portfolio.capabilities.reduce((prev, current) => {
             return {value: prev.value + current.value}
         }).value;
     }
@@ -35,6 +41,9 @@ function prepData(portfolios, consensus) {
         portfolio.proportion = +portfolio.proportion;
         for (let capability of portfolio.capabilities) {
             capability.proportion = +capability.proportion;
+
+            // Track portfolio name
+            capability.portfolio = portfolio.name;
         }
     }
 }
