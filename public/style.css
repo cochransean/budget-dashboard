@@ -2,9 +2,19 @@
   height: 80%; }
 
 .bar-value {
-  fill: red;
-  stroke: black; }
+  fill: #e31a1c;
+  stroke: #e31a1c; }
 
 .bar-consensus {
-  fill: green;
-  stroke: black; }
+  fill: #377eb8;
+  stroke: #377eb8; }
+
+.blank {
+  fill: white; }
+
+#slider {
+  margin-top: 13px; }
+
+.axis {
+  font-weight: bold;
+  font-size: 15px; }

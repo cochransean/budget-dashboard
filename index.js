@@ -9,13 +9,14 @@ import BarChart from './components/bar-chart.js';
 queue()
     .defer(json, 'data/portfolios.json')
     .defer(json, 'data/expert_consensus.json')
-    .await(function(error, portfolios, consensus) {
+    .defer(json, 'data/expert_consensusB.json')
+    .await(function(error, portfolios, consensusA, consensusB) {
         if (error) throw error;
-        prepData(portfolios, consensus);
-        let barChart = new BarChart('bar-chart', portfolios, consensus);
+        prepData(portfolios, consensusA, consensusB);
+        let barChart = new BarChart('bar-chart', portfolios, consensusA, consensusB);
     });
 
-function prepData(portfolios, consensus) {
+function prepData(portfolios, consensusA, consensusB) {
 
     for (let portfolio of portfolios) {
 
@@ -35,16 +36,28 @@ function prepData(portfolios, consensus) {
         }).value;
     }
 
-    for (let portfolio of consensus) {
+    // Get total value of all actual portfolios and calculate what each should have based on consensus
+    let totalActual = portfolios.reduce((prev, current) => {
+        return {value: prev.value + current.value}
+    }).value;
 
-        // Cast to numeric
-        portfolio.proportion = +portfolio.proportion;
-        for (let capability of portfolio.capabilities) {
-            capability.proportion = +capability.proportion;
+    [consensusA, consensusB].forEach(function(consensusOpinion) {
+        for (let portfolio of consensusOpinion) {
 
-            // Track portfolio name
-            capability.portfolio = portfolio.name;
+            // Cast to numeric
+            portfolio.proportion = +portfolio.proportion;
+
+            // Determine what the experts think this portfolio should be worth
+            portfolio.value = portfolio.proportion * totalActual;
+
+            for (let capability of portfolio.capabilities) {
+                capability.proportion = +capability.proportion;
+                capability.value = portfolio.value * capability.proportion;
+
+                // Track portfolio name
+                capability.portfolio = portfolio.name;
+            }
         }
-    }
+    });
 }
 // TODO: add mixing board to send current 'mix' of problem sets

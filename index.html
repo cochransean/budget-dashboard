@@ -8,8 +8,18 @@
     </head>
     <body>
         <h1 class="text-center">Future Force Dashboard</h1>
-        <div id="bar-chart"></div>
-        <div id="mixing-board"></div>
+        <div class="container-fluid">
+            <div id="bar-chart"></div>
+            <div id="mixing-board"></div>
+            <div class="row">
+                <div class="col-md-1"></div>
+                <div class="col-md-1 text-center"><h4>Problem Set A</h4></div>
+                <div class="col-md-8 col-xs-12"><input id="slider" type="range" min="0" max="100" value="0" step="1" /></div>
+                <div class="col-md-1 text-center"><h4>Problem Set B</h4></div>
+                <div class="col-md-1"></div>
+            </div>
+        </div>
+
 
         <!-- Load JQuery and Bootstrap as globals here due to webpack difficulty-->
         <script type="text/javascript" src="js/jquery-3.1.1.min.js" charset="utf-8"></script>

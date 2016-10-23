@@ -1,13 +1,29 @@
+$bar-value-color: #e31a1c;
+$bar-consensus-color: #377eb8;
+
 #bar-chart {
   height: 80%;
 }
 
 .bar-value {
-  fill: red;
-  stroke: black
+  fill: $bar-value-color;
+  stroke: $bar-value-color
 }
 
 .bar-consensus {
-  fill: green;
-  stroke: black
+  fill: $bar-consensus-color;
+  stroke: $bar-consensus-color
+}
+
+.blank {
+  fill: white;
+}
+
+#slider {
+  margin-top: 13px;
+}
+
+.axis {
+  font-weight: bold;
+  font-size: 15px;
 }
