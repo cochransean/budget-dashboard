@@ -1,11 +1,11 @@
 #bar-chart {
   height: 80%; }
 
-.bar-value {
+.bar-value, .swatch-value {
   fill: #e31a1c;
   stroke: #e31a1c; }
 
-.bar-consensus {
+.bar-consensus, .swatch-consensus {
   fill: #377eb8;
   stroke: #377eb8; }
 

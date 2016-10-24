@@ -5,12 +5,12 @@ $bar-consensus-color: #377eb8;
   height: 80%;
 }
 
-.bar-value {
+.bar-value, .swatch-value {
   fill: $bar-value-color;
   stroke: $bar-value-color
 }
 
-.bar-consensus {
+.bar-consensus, .swatch-consensus {
   fill: $bar-consensus-color;
   stroke: $bar-consensus-color
 }

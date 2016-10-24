@@ -788,7 +788,7 @@
 	            var chartDivRect = chartDiv.node().getBoundingClientRect();
 	            vis.width = chartDivRect.width;
 	            vis.height = chartDivRect.height;
-	            vis.margin = { top: vis.height * 0.1, right: vis.width * 0.1, bottom: vis.height * 0.1, left: vis.width * 0.1 };
+	            vis.margin = { top: vis.height * 0.2, right: vis.width * 0.1, bottom: vis.height * 0.1, left: vis.width * 0.1 };
 	            vis.width = vis.width - vis.margin.left - vis.margin.right;
 	            vis.height = vis.height - vis.margin.top - vis.margin.bottom;
 
@@ -806,6 +806,27 @@
 	            vis.svg.append('rect').attr('width', vis.width).attr('height', vis.height).attr('class', 'blank').on('click', function () {
 	                vis.portfolioSelected = null;
 	                vis.wrangleData();
+	            });
+
+	            // TODO move legend to better place and toggle for "use actual portfolio value, user expert-recommended portfolio value"
+	            // Add legend
+	            ['swatch-value', 'swatch-consensus'].forEach(function (cssClass, index) {
+	                var swatchWidth = .02 * vis.width;
+	                vis.svg.append('rect').attr('x', function () {
+	                    return vis.width - vis.width * .2;
+	                }).attr('y', function () {
+	                    return -swatchWidth * 2.5 + index * swatchWidth;
+	                }).attr('width', swatchWidth).attr('height', swatchWidth).attr('class', cssClass);
+	            });
+
+	            // Add legend labels
+	            ['Actual Programmed Value', 'Expert Consensus Value'].forEach(function (text, index) {
+	                var swatchWidth = .02 * vis.width;
+	                vis.svg.append('text').attr('x', function () {
+	                    return vis.width - vis.width * .2 + swatchWidth * 1.05;
+	                }).attr('y', function () {
+	                    return -swatchWidth * 2.5 + index * swatchWidth + swatchWidth / 1.6;
+	                }).text(text);
 	            });
 
 	            vis.slider = d3.select('#slider');
@@ -873,125 +894,85 @@
 	                return d.name;
 	            });
 
+	            // Determine if highest value is in portfolios or consensus to setup axes
+	            var maxPortfolio = vis.portfolioSelected === null ? d3.max(vis.portfolios, function (d) {
+	                return d.value;
+	            }) : d3.max(vis.filteredPortfolios, function (d) {
+	                return d.value;
+	            });
+	            var maxConsensus = vis.portfolioSelected === null ? d3.max(vis.weightedConsensus, function (d) {
+	                return d.value;
+	            }) : d3.max(vis.filteredConsensus, function (d) {
+	                return d.value;
+	            });
+	            var maxYValue = d3.max([maxPortfolio, maxConsensus]);
+	            console.log(maxYValue);
+
+	            // Update y-axis
+	            vis.y.domain([maxYValue, 0]);
+
+	            // Update x-axis
+	            var names = vis.portfolioSelected === null ? vis.portfolios.map(function (value) {
+	                return value.name;
+	            }) : vis.filteredPortfolios.map(function (value) {
+	                return value.name;
+	            });
+	            vis.x0.domain(names);
+
 	            // Cumulatively track position for building bars
 	            var cumulativeActual = {};
 	            var cumulativeConsensus = {};
+	            var indexLookup = vis.portfolioSelected === null ? 'portfolio' : 'name';
 
-	            if (vis.portfolioSelected === null) {
+	            // Track current Y position for each bar
+	            names.forEach(function (name) {
+	                cumulativeActual[name] = 0;
+	                cumulativeConsensus[name] = 0;
+	            });
 
-	                // Determine if highest value is in portfolios or consensus to setup axes
-	                var maxPortfolio = d3.max(vis.portfolios, function (d) {
-	                    return d.value;
-	                });
-	                var maxConsensus = d3.max(vis.consensusA, function (d) {
-	                    return d.value;
-	                });
-	                var maxYValue = d3.max([maxPortfolio, maxConsensus]);
+	            actualValueBars.exit().remove();
 
-	                // Update axes
-	                var portfolioNames = vis.portfolios.map(function (value) {
-	                    return value.name;
-	                });
-	                vis.y.domain([maxYValue, 0]);
-	                vis.x0.domain(portfolioNames);
-
-	                // Track current Y position for each bar
-	                portfolioNames.forEach(function (name) {
-	                    cumulativeActual[name] = 0;
-	                    cumulativeConsensus[name] = 0;
-	                });
-
-	                actualValueBars.enter().append('rect').on("click", function (d) {
-	                    vis.portfolioSelected = d.portfolio;
-	                    vis.wrangleData();
-	                }).merge(actualValueBars).style("opacity", 0.5).transition().duration(800).attr('x', function (d) {
+	            actualValueBars.enter().append('rect').on("click", function (d) {
+	                vis.portfolioSelected = d.portfolio;
+	                vis.wrangleData();
+	            }).merge(actualValueBars).style("opacity", 0.5).transition().duration(800).attr('x', function (d) {
+	                if (vis.portfolioSelected === null) {
 	                    return vis.x0(d.portfolio);
-	                }).attr('y', function (d) {
-	                    var current = vis.height - vis.y(d.value);
-	                    var position = vis.height - cumulativeActual[d.portfolio] - current;
-	                    cumulativeActual[d.portfolio] += current;
-	                    return position;
-	                }).attr('height', function (d) {
-	                    return vis.height - vis.y(d.value);
-	                }).attr('width', function (d) {
-	                    return vis.x0.bandwidth() / 2;
-	                }).attr('class', 'bar-value').style("opacity", 1);
-
-	                consensusBars.enter().append('rect').on("click", function (d) {
-	                    vis.portfolioSelected = d.portfolio;
-	                    vis.wrangleData();
-	                }).merge(consensusBars).style("opacity", 0.5).transition().duration(800).attr('x', function (d) {
-	                    return vis.x0(d.portfolio) + vis.x0.bandwidth() / 2;
-	                }).attr('y', function (d) {
-	                    var current = vis.height - vis.y(d.value);
-	                    var position = vis.height - cumulativeConsensus[d.portfolio] - current;
-	                    cumulativeConsensus[d.portfolio] += current;
-	                    return position;
-	                }).attr('height', function (d) {
-	                    return vis.height - vis.y(d.value);
-	                }).attr('width', function (d) {
-	                    return vis.x0.bandwidth() / 2;
-	                }).attr('class', 'bar-consensus').style("opacity", 1);
-	            } else {
-
-	                // Determine if highest value is in portfolios or consensus to setup axes
-	                var _maxPortfolio = d3.max(vis.filteredPortfolios, function (d) {
-	                    return d.value;
-	                });
-	                var _maxConsensus = d3.max(vis.filteredConsensus, function (d) {
-	                    return d.value;
-	                });
-	                var _maxYValue = d3.max([_maxPortfolio, _maxConsensus]);
-
-	                // Update axes
-	                var capabilityNames = vis.filteredPortfolios.map(function (value) {
-	                    return value.name;
-	                });
-	                vis.x0.domain(capabilityNames);
-	                vis.y.domain([_maxYValue, 0]);
-
-	                // Track current Y position for each bar
-	                capabilityNames.forEach(function (name) {
-	                    cumulativeActual[name] = 0;
-	                    cumulativeConsensus[name] = 0;
-	                });
-
-	                actualValueBars.exit().remove();
-
-	                actualValueBars.enter().append('rect').on("click", function (d) {
-	                    vis.portfolioSelected = d.portfolio;
-	                    vis.wrangleData();
-	                }).merge(actualValueBars).style("opacity", 0.5).transition().duration(800).attr('x', function (d) {
+	                } else {
 	                    return vis.x0(d.name);
-	                }).attr('y', function (d) {
-	                    var current = vis.height - vis.y(d.value);
-	                    var position = vis.height - cumulativeActual[d.name] - current;
-	                    cumulativeActual[d.portfolio] += current;
-	                    return position;
-	                }).attr('height', function (d) {
-	                    return vis.height - vis.y(d.value);
-	                }).attr('width', function (d) {
-	                    return vis.x0.bandwidth() / 2;
-	                }).attr('class', 'bar-value').style("opacity", 1);
+	                }
+	            }).attr('y', function (d) {
+	                var current = vis.height - vis.y(d.value);
+	                var position = vis.height - cumulativeActual[d[indexLookup]] - current;
+	                cumulativeActual[d.portfolio] += current;
+	                return position;
+	            }).attr('height', function (d) {
+	                return vis.height - vis.y(d.value);
+	            }).attr('width', function (d) {
+	                return vis.x0.bandwidth() / 2;
+	            }).attr('class', 'bar-value').style("opacity", 1);
 
-	                consensusBars.exit().remove();
+	            consensusBars.exit().remove();
 
-	                consensusBars.enter().append('rect').merge(consensusBars).on("click", function (d) {
-	                    vis.portfolioSelected = d.portfolio;
-	                    vis.wrangleData();
-	                }).style("opacity", 0.5).transition().duration(800).attr('x', function (d) {
+	            consensusBars.enter().append('rect').on("click", function (d) {
+	                vis.portfolioSelected = d.portfolio;
+	                vis.wrangleData();
+	            }).merge(consensusBars).style("opacity", 0.5).transition().duration(800).attr('x', function (d) {
+	                if (vis.portfolioSelected === null) {
+	                    return vis.x0(d.portfolio) + vis.x0.bandwidth() / 2;
+	                } else {
 	                    return vis.x0(d.name) + vis.x0.bandwidth() / 2;
-	                }).attr('y', function (d) {
-	                    var current = vis.height - vis.y(d.value);
-	                    var position = vis.height - cumulativeConsensus[d.name] - current;
-	                    cumulativeConsensus[d.portfolio] += current;
-	                    return position;
-	                }).attr('height', function (d) {
-	                    return vis.height - vis.y(d.value);
-	                }).attr('width', function (d) {
-	                    return vis.x0.bandwidth() / 2;
-	                }).attr('class', 'bar-consensus').style("opacity", 1);
-	            }
+	                }
+	            }).attr('y', function (d) {
+	                var current = vis.height - vis.y(d.value);
+	                var position = vis.height - cumulativeConsensus[d[indexLookup]] - current;
+	                cumulativeConsensus[d.portfolio] += current;
+	                return position;
+	            }).attr('height', function (d) {
+	                return vis.height - vis.y(d.value);
+	            }).attr('width', function (d) {
+	                return vis.x0.bandwidth() / 2;
+	            }).attr('class', 'bar-consensus').style("opacity", 1);
 
 	            // update axes
 	            vis.xAxisGroup.transition().duration(800).call(vis.xAxis);
