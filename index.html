@@ -12,11 +12,14 @@
             <div id="bar-chart"></div>
             <div id="mixing-board"></div>
             <div class="row">
-                <div class="col-md-1"></div>
-                <div class="col-md-1 text-center"><h4>Problem Set A</h4></div>
-                <div class="col-md-8 col-xs-12"><input id="slider" type="range" min="0" max="100" value="0" step="1" /></div>
-                <div class="col-md-1 text-center"><h4>Problem Set B</h4></div>
-                <div class="col-md-1"></div>
+                <div class="col-xs-1"></div>
+                <div id="slider-group">
+                    <div class="col-xs-1 text-right slider-label">Alien Invasion</div>
+                    <div class="col-xs-5"><input id="slider" type="range" min="0" max="100" value="0" step="1" /></div>
+                    <div class="col-xs-1 text-left slider-label">Zombie Apocalypse</div>
+                </div>
+                <div class="col-xs-3" id="bar-chart-legend"></div>
+                <div class="col-xs-1"></div>
             </div>
         </div>
 

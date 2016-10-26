@@ -1,16 +1,18 @@
 $bar-value-color: #e31a1c;
 $bar-consensus-color: #377eb8;
+$label-font-size: .88vw;
+$axis-legend-font-size: .83vw;
 
 #bar-chart {
   height: 80%;
 }
 
-.bar-value {
+.bar-value, .swatch-value {
   fill: $bar-value-color;
   stroke: $bar-value-color
 }
 
-.bar-consensus {
+.bar-consensus, .swatch-consensus {
   fill: $bar-consensus-color;
   stroke: $bar-consensus-color
 }
@@ -20,10 +22,30 @@ $bar-consensus-color: #377eb8;
 }
 
 #slider {
-  margin-top: 13px;
+  margin-top: 2.9vh;
+}
+
+.slider-label {
+  margin-top: 2.4vh;
+  font-size: $label-font-size;
+  font-weight: bold;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .axis {
+  font-weight: 500;
+  font-size: $axis-legend-font-size;
+}
+
+.axis-label {
+  font-size: $label-font-size;
   font-weight: bold;
-  font-size: 15px;
+  fill: black;
+  text-anchor: middle;
+}
+
+#bar-chart-legend {
+  height: 10%;
+  font-size: $axis-legend-font-size;
 }

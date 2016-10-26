@@ -31,6 +31,16 @@ class BarChart {
             .append("g")
             .attr("transform", "translate(" + vis.margin.left + "," + vis.margin.top + ")");
 
+        // Add blank rectangle behind everything to listen for clicks
+        vis.svg.append('rect')
+            .attr('width', vis.width)
+            .attr('height', vis.height)
+            .attr('class', 'blank')
+            .on('click', function() {
+                vis.portfolioSelected = null;
+                vis.wrangleData();
+            });
+
         // Scales and axes
         vis.x0 = d3.scaleBand()
             .paddingInner([0.2])
@@ -45,15 +55,16 @@ class BarChart {
         vis.yAxisGroup = vis.svg.append('g')
             .attr("class", "y-axis axis");
 
-        // Add blank rectangle behind everything to listen for clicks
-        vis.svg.append('rect')
-            .attr('width', vis.width)
-            .attr('height', vis.height)
-            .attr('class', 'blank')
-            .on('click', function() {
-                vis.portfolioSelected = null;
-                vis.wrangleData();
-            });
+        vis.xAxisText = vis.xAxisGroup.append('text')
+            .attr('x', () => vis.width / 2)
+            .attr('y', () => vis.height * .0925)
+            .attr('class', 'axis-label');
+        vis.svg.append('text')
+            .attr("transform", "translate(" + vis.width * -0.04 + "," + vis.height / 2 + ") rotate(90)")
+            .attr('class', 'axis-label')
+            .text('Value (Billions of Dollars)');
+
+        // TODO Add toggle for "use actual portfolio value, user expert-recommended portfolio value"
 
         vis.slider = d3.select('#slider');
         vis.slider.on('change', function() {
@@ -86,13 +97,12 @@ class BarChart {
 
         // Otherwise, filter based on the selection
         else {
-            console.log(vis.portfolioSelected);
             let nameToPosition = {
-                'Portfolio 1': 0,
-                'Portfolio 2': 1,
-                'Portfolio 3': 2,
-                'Portfolio 4': 3,
-                'Portfolio 5': 4
+                'Melee Weapons': 0,
+                'Spacecraft': 1,
+                'Ranged Weapons': 2,
+                'Ground Vehicles': 3,
+                'Cyber': 4
             };
             let portfolioPosition = nameToPosition[vis.portfolioSelected];
 
@@ -118,141 +128,95 @@ class BarChart {
                 return d.name;
             });
 
+        // Determine if highest value is in portfolios or consensus to setup axes
+        let maxPortfolio = vis.portfolioSelected === null ? d3.max(vis.portfolios, d => d.value):
+            d3.max(vis.filteredPortfolios, d => d.value);
+        let maxConsensus = vis.portfolioSelected === null ? d3.max(vis.weightedConsensus, d => d.value):
+            d3.max(vis.filteredConsensus, d => d.value);
+        let maxYValue = d3.max([maxPortfolio, maxConsensus]);
+
+        // Update y-axis
+        vis.y.domain([maxYValue, 0]);
+
+        // Update x-axis
+        let names = vis.portfolioSelected === null ? vis.portfolios.map(value => value.name) :
+            vis.filteredPortfolios.map(value => value.name);
+        vis.x0.domain(names);
+
         // Cumulatively track position for building bars
         let cumulativeActual = {};
         let cumulativeConsensus = {};
+        let indexLookup = vis.portfolioSelected === null ? 'portfolio': 'name';
 
-        if (vis.portfolioSelected === null) {
+        // Track current Y position for each bar
+        names.forEach(function(name) {
+            cumulativeActual[name] = 0;
+            cumulativeConsensus[name] = 0;
+        });
 
-            // Determine if highest value is in portfolios or consensus to setup axes
-            let maxPortfolio = d3.max(vis.portfolios, d => d.value);
-            let maxConsensus = d3.max(vis.consensusA, d => d.value);
-            let maxYValue = d3.max([maxPortfolio, maxConsensus]);
+        actualValueBars.exit()
+            .remove();
 
-            // Update axes
-            let portfolioNames = vis.portfolios.map(value => value.name);
-            vis.y.domain([maxYValue, 0]);
-            vis.x0.domain(portfolioNames);
+        actualValueBars.enter()
+            .append('rect')
+            .on("click", function(d) {
+                vis.portfolioSelected = d.portfolio;
+                vis.wrangleData();
+            })
+            .merge(actualValueBars)
+            .style("opacity", 0.5)
+            .transition()
+            .duration(800)
+            .attr('x', function(d) {
+                if (vis.portfolioSelected === null) {
+                    return vis.x0(d.portfolio)
+                }
+                else {
+                    return vis.x0(d.name)
+                }
+            })
+            .attr('y', function(d) {
+                let current = vis.height - vis.y(d.value);
+                let position =  vis.height - cumulativeActual[d[indexLookup]] - current;
+                cumulativeActual[d.portfolio] += current;
+                return position
+            })
+            .attr('height', d => vis.height - vis.y(d.value))
+            .attr('width', d => vis.x0.bandwidth() / 2)
+            .attr('class', 'bar-value')
+            .style("opacity", 1);
 
-            // Track current Y position for each bar
-            portfolioNames.forEach(function(name) {
-                cumulativeActual[name] = 0;
-                cumulativeConsensus[name] = 0;
-            });
+        consensusBars.exit()
+            .remove();
 
-            actualValueBars.enter().append('rect')
-                .on("click", function(d) {
-                    vis.portfolioSelected = d.portfolio;
-                    vis.wrangleData();
-                })
-                .merge(actualValueBars)
-                .style("opacity", 0.5)
-                .transition()
-                .duration(800)
-                .attr('x', d => vis.x0(d.portfolio))
-                .attr('y', function(d) {
-                    let current = vis.height - vis.y(d.value);
-                    let position =  vis.height - cumulativeActual[d.portfolio] - current;
-                    cumulativeActual[d.portfolio] += current;
-                    return position
-                })
-                .attr('height', d => vis.height - vis.y(d.value))
-                .attr('width', d => vis.x0.bandwidth() / 2)
-                .attr('class', 'bar-value')
-                .style("opacity", 1);
-
-
-            consensusBars.enter().append('rect')
-                .on("click", function(d) {
-                    vis.portfolioSelected = d.portfolio;
-                    vis.wrangleData();
-                })
-                .merge(consensusBars)
-                .style("opacity", 0.5)
-                .transition()
-                .duration(800)
-                .attr('x', d => vis.x0(d.portfolio) + vis.x0.bandwidth() / 2)
-                .attr('y', function(d) {
-                    let current = vis.height - vis.y(d.value);
-                    let position =  vis.height - cumulativeConsensus[d.portfolio] - current;
-                    cumulativeConsensus[d.portfolio] += current;
-                    return position
-                })
-                .attr('height', d => vis.height - vis.y(d.value))
-                .attr('width', d => vis.x0.bandwidth() / 2)
-                .attr('class', 'bar-consensus')
-                .style("opacity", 1);
-        }
-
-        else {
-
-            // Determine if highest value is in portfolios or consensus to setup axes
-            let maxPortfolio = d3.max(vis.filteredPortfolios, d => d.value);
-            let maxConsensus = d3.max(vis.filteredConsensus, d => d.value);
-            let maxYValue = d3.max([maxPortfolio, maxConsensus]);
-
-            // Update axes
-            let capabilityNames = vis.filteredPortfolios.map(value => value.name);
-            vis.x0.domain(capabilityNames);
-            vis.y.domain([maxYValue, 0]);
-
-            // Track current Y position for each bar
-            capabilityNames.forEach(function(name) {
-                cumulativeActual[name] = 0;
-                cumulativeConsensus[name] = 0;
-            });
-
-            actualValueBars.exit()
-                .remove();
-
-            actualValueBars.enter().append('rect')
-                .on("click", function(d) {
-                    vis.portfolioSelected = d.portfolio;
-                    vis.wrangleData();
-                })
-                .merge(actualValueBars)
-                .style("opacity", 0.5)
-                .transition()
-                .duration(800)
-                .attr('x', d => vis.x0(d.name))
-                .attr('y', function(d) {
-                    let current = vis.height - vis.y(d.value);
-                    let position =  vis.height - cumulativeActual[d.name] - current;
-                    cumulativeActual[d.portfolio] += current;
-                    return position
-                })
-                .attr('height', d => vis.height - vis.y(d.value))
-                .attr('width', d => vis.x0.bandwidth() / 2)
-                .attr('class', 'bar-value')
-                .style("opacity", 1);
-
-            consensusBars.exit()
-                .remove();
-
-            consensusBars.enter().append('rect')
-                .merge(consensusBars)
-                .on("click", function(d) {
-                    vis.portfolioSelected = d.portfolio;
-                    vis.wrangleData();
-                })
-                .style("opacity", 0.5)
-                .transition()
-                .duration(800)
-                .attr('x', d => vis.x0(d.name) + vis.x0.bandwidth() / 2)
-                .attr('y', function(d) {
-                    let current = vis.height - vis.y(d.value);
-                    let position =  vis.height - cumulativeConsensus[d.name] - current;
-                    cumulativeConsensus[d.portfolio] += current;
-                    return position
-                })
-                .attr('height', d => vis.height - vis.y(d.value))
-                .attr('width', d => vis.x0.bandwidth() / 2)
-                .attr('class', 'bar-consensus')
-                .style("opacity", 1);
-
-
-
-        }
+        consensusBars.enter()
+            .append('rect')
+            .on("click", function(d) {
+                vis.portfolioSelected = d.portfolio;
+                vis.wrangleData();
+            })
+            .merge(consensusBars)
+            .style("opacity", 0.5)
+            .transition()
+            .duration(800)
+            .attr('x', function(d) {
+                if (vis.portfolioSelected === null) {
+                    return vis.x0(d.portfolio) + vis.x0.bandwidth() / 2
+                }
+                else {
+                    return vis.x0(d.name) + vis.x0.bandwidth() / 2
+                }
+            })
+            .attr('y', function(d) {
+                let current = vis.height - vis.y(d.value);
+                let position =  vis.height - cumulativeConsensus[d[indexLookup]] - current;
+                cumulativeConsensus[d.portfolio] += current;
+                return position
+            })
+            .attr('height', d => vis.height - vis.y(d.value))
+            .attr('width', d => vis.x0.bandwidth() / 2)
+            .attr('class', 'bar-consensus')
+            .style("opacity", 1);
 
         // update axes
         vis.xAxisGroup
@@ -263,6 +227,9 @@ class BarChart {
             .transition()
             .duration(800)
             .call(vis.yAxis);
+
+        vis.xAxisText
+            .text(() => vis.portfolioSelected === null ? 'Portfolios': 'Capabilities');
 
     }
 

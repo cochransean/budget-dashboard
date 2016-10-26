@@ -1,11 +1,11 @@
 #bar-chart {
   height: 80%; }
 
-.bar-value {
+.bar-value, .swatch-value {
   fill: #e31a1c;
   stroke: #e31a1c; }
 
-.bar-consensus {
+.bar-consensus, .swatch-consensus {
   fill: #377eb8;
   stroke: #377eb8; }
 
@@ -13,8 +13,25 @@
   fill: white; }
 
 #slider {
-  margin-top: 13px; }
+  margin-top: 2.9vh; }
+
+.slider-label {
+  margin-top: 2.4vh;
+  font-size: 0.88vw;
+  font-weight: bold;
+  padding-left: 0;
+  padding-right: 0; }
 
 .axis {
+  font-weight: 500;
+  font-size: 0.83vw; }
+
+.axis-label {
+  font-size: 0.88vw;
   font-weight: bold;
-  font-size: 15px; }
+  fill: black;
+  text-anchor: middle; }
+
+#bar-chart-legend {
+  height: 10%;
+  font-size: 0.83vw; }

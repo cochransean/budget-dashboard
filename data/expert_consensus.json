@@ -1,131 +1,115 @@
 [
   {
-    "name": "Portfolio 1",
+    "name": "Melee Weapons",
     "proportion": 0.2,
     "capabilities": [
       {
-        "name": "Capability 1",
+        "name": "Chainsaws",
         "proportion": 0.2
       },
       {
-        "name": "Capability 2",
-        "proportion": 0.5
+        "name": "Lightsabers",
+        "proportion": 0.6
       },
       {
-        "name": "Capability 3",
+        "name": "Entrenching Tools",
         "proportion": 0.0
       },
       {
-        "name": "Capability 4",
+        "name": "Bayonets",
         "proportion": 0.2
-      },
-      {
-        "name": "Capability 5",
-        "proportion": 0.1
       }
     ]
   },
   {
-    "name": "Portfolio 2",
+    "name": "Spacecraft",
     "proportion": 0.4,
     "capabilities": [
       {
-        "name": "Capability 6",
+        "name": "Millennium Falcon",
         "proportion": 0.25
       },
       {
-        "name": "Capability 7",
+        "name": "Heart of Gold",
         "proportion": 0.25
       },
       {
-        "name": "Capability 8",
+        "name": "Battlestar Galactica",
         "proportion": 0.25
       },
       {
-        "name": "Capability 9",
+        "name": "USS Enterprise",
         "proportion": 0.1
       },
       {
-        "name": "Capability 10",
+        "name": "Nostromo",
         "proportion": 0.15
       }
     ]
   },
   {
-    "name": "Portfolio 3",
+    "name": "Ranged Weapons",
     "proportion": 0.1,
     "capabilities": [
       {
-        "name": "Capability 11",
+        "name": "Molecular Disruption Devices",
         "proportion": 0.8
       },
       {
-        "name": "Capability 12",
+        "name": "Crossbows",
         "proportion": 0.05
       },
       {
-        "name": "Capability 13",
+        "name": "Catapults",
         "proportion": 0.05
       },
       {
-        "name": "Capability 14",
+        "name": "Trebuchets",
         "proportion": 0.1
-      },
-      {
-        "name": "Capability 15",
-        "proportion": 0
       }
     ]
   },
   {
-    "name": "Portfolio 4",
+    "name": "Ground Vehicles",
     "proportion": 0.2,
     "capabilities": [
       {
-        "name": "Capability 16",
+        "name": "Transformers",
         "proportion": 0.6
       },
       {
-        "name": "Capability 17",
+        "name": "Heavily Armored Buses",
         "proportion": 0
       },
       {
-        "name": "Capability 18",
+        "name": "Hovercraft",
         "proportion": 0.3
       },
       {
-        "name": "Capability 19",
+        "name": "Light Vehicles",
         "proportion": 0.1
       },
       {
-        "name": "Capability 20",
+        "name": "DeLoreans With Flux Capacitors",
         "proportion": 0
       }
     ]
   },
   {
-    "name": "Portfolio 5",
+    "name": "Cyber",
     "proportion": 0.1,
     "capabilities": [
       {
-        "name": "Capability 21",
+        "name": "Tron Cycles",
+        "proportion": 0.5
+      },
+      {
+        "name": "Instantaneous Kung-Fu Instruction",
+        "proportion": 0.4
+      },
+      {
+        "name": "Other Capabilities",
         "proportion": 0.1
-      },
-      {
-        "name": "Capability 22",
-        "proportion": 0.2
-      },
-      {
-        "name": "Capability 23",
-        "proportion": 0.3
-      },
-      {
-        "name": "Capability 24",
-        "proportion": 0.1
-      },
-      {
-        "name": "Capability 25",
-        "proportion": 0.3
       }
     ]
   }
