@@ -21,7 +21,7 @@ class BarChart {
         let chartDivRect = chartDiv.node().getBoundingClientRect();
         vis.width = chartDivRect.width;
         vis.height = chartDivRect.height;
-        vis.margin = {top: vis.height * 0.2, right: vis.width * 0.1, bottom: vis.height * 0.1, left: vis.width * 0.1};
+        vis.margin = {top: vis.height * 0.1, right: vis.width * 0.1, bottom: vis.height * 0.1, left: vis.width * 0.1};
         vis.width = vis.width - vis.margin.left - vis.margin.right;
         vis.height = vis.height - vis.margin.top - vis.margin.bottom;
 
@@ -30,6 +30,16 @@ class BarChart {
             .attr("height", vis.height + vis.margin.top + vis.margin.bottom)
             .append("g")
             .attr("transform", "translate(" + vis.margin.left + "," + vis.margin.top + ")");
+
+        // Add blank rectangle behind everything to listen for clicks
+        vis.svg.append('rect')
+            .attr('width', vis.width)
+            .attr('height', vis.height)
+            .attr('class', 'blank')
+            .on('click', function() {
+                vis.portfolioSelected = null;
+                vis.wrangleData();
+            });
 
         // Scales and axes
         vis.x0 = d3.scaleBand()
@@ -45,36 +55,16 @@ class BarChart {
         vis.yAxisGroup = vis.svg.append('g')
             .attr("class", "y-axis axis");
 
-        // Add blank rectangle behind everything to listen for clicks
-        vis.svg.append('rect')
-            .attr('width', vis.width)
-            .attr('height', vis.height)
-            .attr('class', 'blank')
-            .on('click', function() {
-                vis.portfolioSelected = null;
-                vis.wrangleData();
-            });
+        vis.xAxisText = vis.xAxisGroup.append('text')
+            .attr('x', () => vis.width / 2)
+            .attr('y', () => vis.height * .0925)
+            .attr('class', 'axis-label');
+        vis.svg.append('text')
+            .attr("transform", "translate(" + vis.width * -0.04 + "," + vis.height / 2 + ") rotate(90)")
+            .attr('class', 'axis-label')
+            .text('Value (Billions of Dollars)');
 
-        // TODO move legend to better place and toggle for "use actual portfolio value, user expert-recommended portfolio value"
-        // Add legend
-        ['swatch-value', 'swatch-consensus'].forEach(function(cssClass, index) {
-            let swatchWidth = .02 * vis.width;
-            vis.svg.append('rect')
-                .attr('x', () => vis.width - vis.width * .2)
-                .attr('y', () => -swatchWidth * 2.5 + index * swatchWidth )
-                .attr('width', swatchWidth)
-                .attr('height', swatchWidth)
-                .attr('class', cssClass);
-        });
-
-        // Add legend labels
-        ['Actual Programmed Value', 'Expert Consensus Value'].forEach(function(text, index) {
-            let swatchWidth = .02 * vis.width;
-            vis.svg.append('text')
-                .attr('x', () => vis.width - vis.width *.2 + swatchWidth * 1.05)
-                .attr('y', () => -swatchWidth * 2.5 + index * swatchWidth + swatchWidth / 1.6)
-                .text(text);
-        });
+        // TODO Add toggle for "use actual portfolio value, user expert-recommended portfolio value"
 
         vis.slider = d3.select('#slider');
         vis.slider.on('change', function() {
@@ -107,13 +97,12 @@ class BarChart {
 
         // Otherwise, filter based on the selection
         else {
-            console.log(vis.portfolioSelected);
             let nameToPosition = {
-                'Portfolio 1': 0,
-                'Portfolio 2': 1,
-                'Portfolio 3': 2,
-                'Portfolio 4': 3,
-                'Portfolio 5': 4
+                'Melee Weapons': 0,
+                'Spacecraft': 1,
+                'Ranged Weapons': 2,
+                'Ground Vehicles': 3,
+                'Cyber': 4
             };
             let portfolioPosition = nameToPosition[vis.portfolioSelected];
 
@@ -145,7 +134,6 @@ class BarChart {
         let maxConsensus = vis.portfolioSelected === null ? d3.max(vis.weightedConsensus, d => d.value):
             d3.max(vis.filteredConsensus, d => d.value);
         let maxYValue = d3.max([maxPortfolio, maxConsensus]);
-        console.log(maxYValue);
 
         // Update y-axis
         vis.y.domain([maxYValue, 0]);
@@ -239,6 +227,9 @@ class BarChart {
             .transition()
             .duration(800)
             .call(vis.yAxis);
+
+        vis.xAxisText
+            .text(() => vis.portfolioSelected === null ? 'Portfolios': 'Capabilities');
 
     }
 
