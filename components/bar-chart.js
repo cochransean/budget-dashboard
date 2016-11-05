@@ -66,11 +66,6 @@ class BarChart {
 
         // TODO Add toggle for "use actual portfolio value, user expert-recommended portfolio value"
 
-        vis.slider = d3.select('#slider');
-        vis.slider.on('change', function() {
-            vis.calcConsensus();
-            vis.updateVis();
-        });
 
         // Calculate the dollar value of expert consensus
         vis.calcConsensus();
@@ -237,7 +232,8 @@ class BarChart {
 
         const vis = this;
 
-        let sliderValue = vis.slider.node().value;
+        // TODO hard-coding this until mixing board is done
+        let sliderValue = 0;
         let consensusAWeight = 1 - sliderValue / 100;
         let consensusBWeight = 1 - consensusAWeight;
 

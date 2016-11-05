@@ -7,17 +7,13 @@
         <link rel="stylesheet" href="public/style.css">
     </head>
     <body>
-        <h1 class="text-center">Future Force Dashboard</h1>
         <div class="container-fluid">
+            <h1 id="dashboard-heading" class="text-center">Future Force Dashboard</h1>
             <div id="bar-chart"></div>
             <div id="mixing-board"></div>
-            <div class="row">
+            <div id="control-row" class="row">
                 <div class="col-xs-1"></div>
-                <div id="slider-group">
-                    <div class="col-xs-1 text-right slider-label">Alien Invasion</div>
-                    <div class="col-xs-5"><input id="slider" type="range" min="0" max="100" value="0" step="1" /></div>
-                    <div class="col-xs-1 text-left slider-label">Zombie Apocalypse</div>
-                </div>
+                <div class="col-xs-8" id="mixer"></div>
                 <div class="col-xs-3" id="bar-chart-legend"></div>
                 <div class="col-xs-1"></div>
             </div>

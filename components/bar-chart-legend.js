@@ -9,7 +9,7 @@ class BarChartLegend {
     }
 
     initVis() {
-        const vis=this;
+        const vis = this;
 
         // Append svg
         // Setup margins in responsive way; actual size is determined by CSS
@@ -33,8 +33,8 @@ class BarChartLegend {
 
         ['swatch-value', 'swatch-consensus'].forEach(function(cssClass, index) {
             legendGroup.append('rect')
-                .attr('x', () => index * swatchWidth * 5)
-                .attr('y', () => 0 )
+                .attr('x', 0)
+                .attr('y', () => index * swatchWidth * 2 )
                 .attr('width', swatchWidth)
                 .attr('height', swatchWidth)
                 .attr('class', cssClass);
@@ -43,8 +43,8 @@ class BarChartLegend {
         // Add legend labels
         ['Actual Programmed', 'Expert Consensus'].forEach(function(text, index) {
             legendGroup.append('text')
-                .attr('x', () => index * swatchWidth * 5 + swatchWidth * 1.09)
-                .attr('y', () => swatchWidth / 1.6)
+                .attr('x', () => swatchWidth * 1.2)
+                .attr('y', () => (swatchWidth / 1.6) + (index * swatchWidth * 2))
                 .text(text);
         });
     }

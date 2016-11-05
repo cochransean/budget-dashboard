@@ -4,6 +4,7 @@ require('./css/style.scss');
 import { queue, json } from 'd3';
 import BarChart from './components/bar-chart.js';
 import BarChartLegend from './components/bar-chart-legend.js';
+import Mixer from './components/mixer.js';
 
 
 
@@ -17,6 +18,7 @@ queue()
         prepData(portfolios, consensusA, consensusB);
         let barChart = new BarChart('bar-chart', portfolios, consensusA, consensusB);
         let barChartLegend = new BarChartLegend('bar-chart-legend');
+        let mixer = new Mixer('mixer');
     });
 
 function prepData(portfolios, consensusA, consensusB) {
