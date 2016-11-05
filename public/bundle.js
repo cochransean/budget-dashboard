@@ -9908,7 +9908,7 @@
 	            vis.x = d3.scaleBand().domain(vis.sliderLabels.concat(['Total'])) // Leave a spot for the total percentage widget
 	            .paddingInner([0.2]).rangeRound([0, vis.width]);
 
-	            vis.y = d3.scaleLinear().domain([0, 100]).range([0, vis.height]);
+	            vis.y = d3.scaleLinear().domain([0, 100]).range([0, vis.height]).clamp(true);
 
 	            // Add sliders
 	            vis.sliderLabels.forEach(function (label) {
@@ -9924,7 +9924,7 @@
 	                }).attr("class", "track-overlay").call(d3.drag().on("start.interrupt", function () {
 	                    slider.interrupt();
 	                }).on("start drag", function () {
-	                    console.log('Drag started.');
+	                    vis.sliderDrag(vis.y.invert(d3.event.y), handle);
 	                }));
 
 	                slider.append("text").attr("y", vis.height * 1.25).attr("class", "slider-label").text(label);
@@ -9934,6 +9934,15 @@
 
 	            // Add the total percentage widget
 
+	        }
+
+	        // Respond to slider drags
+
+	    }, {
+	        key: 'sliderDrag',
+	        value: function sliderDrag(value, handle) {
+	            var vis = this;
+	            handle.attr("cy", vis.y(value));
 	        }
 	    }]);
 
