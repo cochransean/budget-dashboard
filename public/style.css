@@ -40,7 +40,7 @@
   height: 100%;
   border: black 3px; }
 
-.slider-guide {
+.slider-guide, .total-guide {
   stroke: black;
   stroke-width: 0.25vh;
   stroke-dasharray: 5, 5; }
@@ -50,7 +50,7 @@
   font-size: 0.83vw;
   text-anchor: middle; }
 
-.slider-guide-text, .slider-percentage {
+.slider-guide-text, .slider-percentage, .total-guide-text {
   font-size: 0.83vw;
   alignment-baseline: middle;
   baseline-shift: -5%;
@@ -75,6 +75,7 @@
 .track-overlay {
   stroke-linecap: round; }
 
+/* TODO make these measurements responsive too */
 .track {
   stroke: #000;
   stroke-opacity: 0.3;
@@ -106,3 +107,6 @@
 
 .total-bar-bad {
   fill: red; }
+
+.total-guide-text {
+  text-anchor: start; }

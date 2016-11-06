@@ -56,7 +56,7 @@ $minor-border-width: 0.25vh;
   border: black 3px;
 }
 
-.slider-guide {
+.slider-guide, .total-guide {
   stroke: black;
   stroke-width: $minor-border-width;
   stroke-dasharray: 5, 5;
@@ -69,7 +69,7 @@ $minor-border-width: 0.25vh;
   text-anchor: middle;
 }
 
-.slider-guide-text, .slider-percentage {
+.slider-guide-text, .slider-percentage, .total-guide-text {
   font-size: $axis-legend-font-size;
   alignment-baseline: middle;
   baseline-shift: -5%; /* Fix the "not quite right" vertical alignment */
@@ -99,6 +99,7 @@ $minor-border-width: 0.25vh;
   stroke-linecap: round;
 }
 
+/* TODO make these measurements responsive too */
 .track {
   stroke: #000;
   stroke-opacity: 0.3;
@@ -136,4 +137,8 @@ $minor-border-width: 0.25vh;
 
 .total-bar-bad {
   fill: red;
+}
+
+.total-guide-text {
+  text-anchor: start;
 }

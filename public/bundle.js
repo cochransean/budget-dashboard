@@ -9964,17 +9964,31 @@
 	            // Different scale to show when user has selected over 100
 	            vis.y1 = d3.scaleLinear().domain([0, 200]).range([vis.height, 0]).clamp(true);
 
+	            // Constants that will be reused
 	            var totalPercentageWidth = vis.x.bandwidth() / 4;
-	            vis.totalBar = vis.svg.append("rect").attr("x", vis.x("Total") + vis.x.bandwidth() / 2 - totalPercentageWidth / 2).attr("class", "total-outline").attr("height", vis.height).attr("width", totalPercentageWidth).select(function () {
+	            var totalStartX = vis.x("Total") + vis.x.bandwidth() / 2 - totalPercentageWidth / 2;
+	            var totalLabelX = totalStartX + totalPercentageWidth + sliderTextPadding;
+
+	            // Add total bar itself
+	            vis.totalBar = vis.svg.append("rect").attr("x", totalStartX).attr("class", "total-outline").attr("height", vis.height).attr("width", totalPercentageWidth).select(function () {
 	                return this.parentNode.appendChild(this.cloneNode(true));
 	            }).attr("height", 0).attr("class", "total-bar-good");
+
+	            // Add axis guide line and labels
+	            vis.svg.append("line").attr("x1", totalStartX).attr("x2", totalStartX + totalPercentageWidth).attr("class", "total-guide").attr("y1", vis.height / 2).attr("y2", vis.height / 2);
+
+	            vis.svg.append("text").attr("x", totalLabelX).attr("class", "total-guide-text").text("200%+").select(function () {
+	                return this.parentNode.appendChild(this.cloneNode(true));
+	            }).attr("y", vis.height).text("100%").select(function () {
+	                return this.parentNode.appendChild(this.cloneNode(true));
+	            }).attr("y", vis.height / 2).text("0%");
 
 	            vis.updateVis();
 
 	            // Respond to slider drags
 	            function sliderDrag(value, sliderID, handle, handleLabel, handleText) {
 
-	                // Round to avoid floating point errors
+	                // Round to avoid floating point errors where total !== 100
 	                value = Math.round(value);
 
 	                // Move the UI SVG pieces
