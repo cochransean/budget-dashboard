@@ -7,7 +7,6 @@ import BarChartLegend from './components/bar-chart-legend.js';
 import Mixer from './components/mixer.js';
 
 
-
 // load data
 queue()
     .defer(json, 'data/portfolios.json')
@@ -65,4 +64,6 @@ function prepData(portfolios, consensusA, consensusB) {
         }
     });
 }
+
 // TODO: add mixing board to send current 'mix' of problem sets
+

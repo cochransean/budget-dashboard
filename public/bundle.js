@@ -194,6 +194,7 @@
 	        }
 	    });
 	}
+
 	// TODO: add mixing board to send current 'mix' of problem sets
 
 /***/ },
@@ -9870,6 +9871,12 @@
 
 	var d3 = _interopRequireWildcard(_d);
 
+	var _state = __webpack_require__(307);
+
+	var _state2 = _interopRequireDefault(_state);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -9880,12 +9887,7 @@
 
 	        var vis = this;
 	        vis.parentDivID = '#' + parentDivID;
-	        vis.sliderLabels = ['Alien Invasion', 'Zombie Apocalypse', 'Mutant Super-Villain'];
-	        vis.initialPositions = {
-	            'Alien Invasion': 100,
-	            'Zombie Apocalypse': 0,
-	            'Mutant Super-Villain': 0
-	        };
+	        vis.sliderLabels = d3.keys(_state2.default.sliderState);
 	        vis.initVis();
 	    }
 
@@ -9939,14 +9941,14 @@
 	                }).attr("class", "track-overlay").call(d3.drag().on("start.interrupt", function () {
 	                    slider.interrupt();
 	                }).on("start drag", function () {
-	                    sliderDrag(vis.y.invert(d3.event.y), handle, handleLabel, handleText);
+	                    sliderDrag(vis.y.invert(d3.event.y), label, handle, handleLabel, handleText);
 	                }));
 
 	                slider.append("text").attr("y", vis.height * 1.25).attr("class", "slider-label").text(label);
 
-	                var handle = slider.insert("circle", ".track-overlay").attr("class", "handle").attr("r", 9).attr("cy", vis.y(vis.initialPositions[label]));
+	                var handle = slider.insert("circle", ".track-overlay").attr("class", "handle").attr("r", 9).attr("cy", vis.y(_state2.default.sliderState[label]));
 
-	                var handleLabel = slider.insert("g", ".track-overlay").attr("transform", "translate(" + sliderTextPadding + "," + vis.y(vis.initialPositions[label]) + ")");
+	                var handleLabel = slider.insert("g", ".track-overlay").attr("transform", "translate(" + sliderTextPadding + "," + vis.y(_state2.default.sliderState[label]) + ")");
 
 	                var handleLabelHeight = vis.height * 0.25;
 	                var handleLabelWidth = vis.x.bandwidth() * 0.2;
@@ -9954,20 +9956,39 @@
 
 	                var handleTextPadding = vis.x.bandwidth() * 0.01;
 	                var handleText = handleLabel.append("text").attr("class", "slider-percentage").attr("x", handleTextPadding).text(function () {
-	                    return vis.initialPositions[label] + "%";
+	                    return _state2.default.sliderState[label] + "%";
 	                });
 	            });
 
 	            // Add the total percentage widget
+	            // Different scale to show when user has selected over 100
+	            vis.y1 = d3.scaleLinear().domain([0, 200]).range([vis.height, 0]).clamp(true);
 
+	            var totalPercentageWidth = vis.x.bandwidth() / 4;
+	            vis.totalBar = vis.svg.append("rect").attr("x", vis.x("Total") + vis.x.bandwidth() / 2 - totalPercentageWidth / 2).attr("class", "total-outline").attr("height", vis.height).attr("width", totalPercentageWidth).select(function () {
+	                return this.parentNode.appendChild(this.cloneNode(true));
+	            }).attr("height", 0).attr("class", "total-bar-good");
+
+	            vis.updateVis();
 
 	            // Respond to slider drags
-	            function sliderDrag(value, handle, handleLabel, handleText) {
+	            function sliderDrag(value, sliderID, handle, handleLabel, handleText) {
+
+	                // Round to avoid floating point errors
+	                value = Math.round(value);
+
+	                // Move the UI SVG pieces
 	                handle.attr("cy", vis.y(value));
 	                handleLabel.attr("transform", "translate(" + sliderTextPadding + "," + vis.y(value) + ")");
-	                handleText.text(Math.round(value) + "%");
+
+	                // Update the text
+	                handleText.text(value + "%");
+
+	                // Update the slider state
+	                _state2.default.sliderState[sliderID] = value;
 
 	                // Update the total percentage widget
+	                vis.updateVis();
 	            }
 
 	            // Respond to slider end
@@ -9982,12 +10003,51 @@
 	                // Trigger update of bar graphs
 	            }
 	        }
+	    }, {
+	        key: 'updateVis',
+	        value: function updateVis() {
+	            var vis = this;
+
+	            // Update length of the total bar
+	            var totalValue = d3.values(_state2.default.sliderState).reduce(function (prev, current) {
+	                return prev + current;
+	            });
+
+	            vis.totalBar.attr("y", vis.y1(totalValue)).attr("height", vis.height - vis.y1(totalValue)).attr("class", function () {
+	                return totalValue === 100 ? 'total-bar-good' : 'total-bar-bad';
+	            });
+	        }
 	    }]);
 
 	    return Mixer;
 	}();
 
 	exports.default = Mixer;
+
+/***/ },
+/* 307 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var stateBank = function stateBank() {
+	    _classCallCheck(this, stateBank);
+
+	    // Variable to track state of sliders; initial values = initial state
+	    this.sliderState = {
+	        'Alien Invasion': 100,
+	        'Zombie Apocalypse': 0,
+	        'Mutant Super-Villain': 0
+	    };
+	};
+
+	exports.default = new stateBank();
 
 /***/ }
 /******/ ]);

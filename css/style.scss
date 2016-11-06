@@ -2,6 +2,7 @@ $bar-value-color: #e31a1c;
 $bar-consensus-color: #377eb8;
 $label-font-size: .88vw;
 $axis-legend-font-size: .83vw;
+$minor-border-width: 0.25vh;
 
 /* Heading Styles */
 #dashboard-heading {
@@ -57,7 +58,7 @@ $axis-legend-font-size: .83vw;
 
 .slider-guide {
   stroke: black;
-  stroke-width: 0.25vh;
+  stroke-width: $minor-border-width;
   stroke-dasharray: 5, 5;
 }
 
@@ -85,7 +86,7 @@ $axis-legend-font-size: .83vw;
 .handle-label {
   fill: white;
   stroke: black;
-  stroke-width: 0.25vh;
+  stroke-width: $minor-border-width;
 }
 
 .ticks {
@@ -120,4 +121,19 @@ $axis-legend-font-size: .83vw;
   stroke: #000;
   stroke-opacity: 0.5;
   stroke-width: 1.25px;
+}
+
+/* Total Percentage Widget Styles */
+.total-outline {
+  fill: #fff;
+  stroke: #000;
+  stroke-width: $minor-border-width
+}
+
+.total-bar-good {
+  fill: green;
+}
+
+.total-bar-bad {
+  fill: red;
 }

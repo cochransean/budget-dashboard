@@ -1,16 +1,12 @@
 import * as d3 from "d3";
+import stateBank from './state.js'
 
 class Mixer {
 
     constructor(parentDivID) {
         const vis = this;
         vis.parentDivID = '#' + parentDivID;
-        vis.sliderLabels = ['Alien Invasion', 'Zombie Apocalypse', 'Mutant Super-Villain'];
-        vis.initialPositions = {
-            'Alien Invasion': 100,
-            'Zombie Apocalypse': 0,
-            'Mutant Super-Villain': 0
-        };
+        vis.sliderLabels = d3.keys(stateBank.sliderState);
         vis.initVis();
     }
 
@@ -90,7 +86,7 @@ class Mixer {
                 .call(d3.drag()
                     .on("start.interrupt", function() { slider.interrupt(); })
                     .on("start drag", function() {
-                        sliderDrag(vis.y.invert(d3.event.y), handle, handleLabel, handleText);
+                        sliderDrag(vis.y.invert(d3.event.y), label, handle, handleLabel, handleText);
                     }));
 
             slider.append("text")
@@ -101,10 +97,10 @@ class Mixer {
             let handle = slider.insert("circle", ".track-overlay")
                 .attr("class", "handle")
                 .attr("r", 9)
-                .attr("cy", vis.y(vis.initialPositions[label]));
+                .attr("cy", vis.y(stateBank.sliderState[label]));
 
             let handleLabel = slider.insert("g", ".track-overlay")
-                .attr("transform", "translate(" + sliderTextPadding + "," + vis.y(vis.initialPositions[label]) + ")");
+                .attr("transform", "translate(" + sliderTextPadding + "," + vis.y(stateBank.sliderState[label]) + ")");
 
             const handleLabelHeight = vis.height * 0.25;
             const handleLabelWidth = vis.x.bandwidth() * 0.2;
@@ -118,21 +114,49 @@ class Mixer {
             let handleText = handleLabel.append("text")
                 .attr("class", "slider-percentage")
                 .attr("x", handleTextPadding)
-                .text(function() { return vis.initialPositions[label] + "%" });
+                .text(function() { return stateBank.sliderState[label] + "%" });
 
         });
 
         // Add the total percentage widget
+        // Different scale to show when user has selected over 100
+        vis.y1 = d3.scaleLinear()
+            .domain([0, 200])
+            .range([vis.height, 0])
+            .clamp(true);
+
+        const totalPercentageWidth = vis.x.bandwidth() / 4;
+        vis.totalBar = vis.svg.append("rect")
+            .attr("x", vis.x("Total") + vis.x.bandwidth() / 2 - totalPercentageWidth / 2)
+            .attr("class", "total-outline")
+            .attr("height", vis.height)
+            .attr("width", totalPercentageWidth)
+            .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+            .attr("height", 0)
+            .attr("class", "total-bar-good");
+
+        vis.updateVis();
 
 
 
         // Respond to slider drags
-        function sliderDrag(value, handle, handleLabel, handleText) {
+        function sliderDrag(value, sliderID, handle, handleLabel, handleText) {
+
+            // Round to avoid floating point errors
+            value = Math.round(value);
+
+            // Move the UI SVG pieces
             handle.attr("cy", vis.y(value));
             handleLabel.attr("transform", "translate(" + sliderTextPadding + "," + vis.y(value) + ")");
-            handleText.text(Math.round(value) + "%");
+
+            // Update the text
+            handleText.text(value + "%");
+
+            // Update the slider state
+            stateBank.sliderState[sliderID] = value;
 
             // Update the total percentage widget
+            vis.updateVis()
         }
 
         // Respond to slider end
@@ -146,6 +170,23 @@ class Mixer {
 
             // Trigger update of bar graphs
         }
+    }
+
+    updateVis() {
+        let vis = this;
+
+        // Update length of the total bar
+        let totalValue = d3.values(stateBank.sliderState).reduce(function(prev, current) {
+            return prev + current
+        });
+
+        vis.totalBar
+            .attr("y", vis.y1(totalValue))
+            .attr("height", vis.height - vis.y1(totalValue))
+            .attr("class", function() {
+                return totalValue === 100 ? 'total-bar-good': 'total-bar-bad'
+            });
+
     }
 
 

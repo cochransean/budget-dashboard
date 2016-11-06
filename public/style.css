@@ -94,3 +94,15 @@
   stroke: #000;
   stroke-opacity: 0.5;
   stroke-width: 1.25px; }
+
+/* Total Percentage Widget Styles */
+.total-outline {
+  fill: #fff;
+  stroke: #000;
+  stroke-width: 0.25vh; }
+
+.total-bar-good {
+  fill: green; }
+
+.total-bar-bad {
+  fill: red; }
