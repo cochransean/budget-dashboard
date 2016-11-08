@@ -154,10 +154,10 @@ class Mixer {
             .text("200%+")
             .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
             .attr("y", vis.height)
-            .text("100%")
+            .text("0%")
             .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
             .attr("y", vis.height / 2)
-            .text("0%");
+            .text("100%");
 
 
         vis.updateVis();

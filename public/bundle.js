@@ -9979,9 +9979,9 @@
 
 	            vis.svg.append("text").attr("x", totalLabelX).attr("class", "total-guide-text").text("200%+").select(function () {
 	                return this.parentNode.appendChild(this.cloneNode(true));
-	            }).attr("y", vis.height).text("100%").select(function () {
+	            }).attr("y", vis.height).text("0%").select(function () {
 	                return this.parentNode.appendChild(this.cloneNode(true));
-	            }).attr("y", vis.height / 2).text("0%");
+	            }).attr("y", vis.height / 2).text("100%");
 
 	            vis.updateVis();
 
