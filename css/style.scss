@@ -4,6 +4,11 @@ $label-font-size: .88vw;
 $axis-legend-font-size: .83vw;
 $minor-border-width: 0.25vh;
 
+/* Overall Styles */
+.vis-container {
+  height: 100vh;
+}
+
 /* Heading Styles */
 #dashboard-heading {
   height: 3%;
