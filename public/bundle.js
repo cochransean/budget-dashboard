@@ -1208,7 +1208,8 @@
 	            // Add axis guide line and labels
 	            vis.svg.append("line").attr("x1", totalStartX).attr("x2", totalStartX + totalPercentageWidth).attr("class", "total-guide").attr("y1", vis.height / 2).attr("y2", vis.height / 2);
 
-	            vis.svg.append("text").attr("x", totalLabelX).attr("class", "total-guide-text").text("200%+").select(function () {
+	            vis.hundredLabel = vis.svg.append("text").attr("x", totalLabelX).attr("class", "total-guide-text").attr("font-size", ".83vw") // Set size here instead of CSS to support animation.
+	            .text("200%+").select(function () {
 	                return this.parentNode.appendChild(this.cloneNode(true));
 	            }).attr("y", vis.height).text("0%").select(function () {
 	                return this.parentNode.appendChild(this.cloneNode(true));
@@ -1230,7 +1231,7 @@
 	                handleText.text(value + "%");
 
 	                // Update the slider state
-	                _state2.default.sliderState[sliderID] = value;
+	                _state2.default.sliderState[sliderID] = Math.round(value); // Round to avoid floating point errors
 
 	                // Update the total percentage widget
 	                vis.updateVis();
@@ -1261,6 +1262,16 @@
 	            vis.totalBar.attr("y", vis.y1(totalValue)).attr("height", vis.height - vis.y1(totalValue)).attr("class", function () {
 	                return totalValue === 100 ? 'total-bar-good' : 'total-bar-bad';
 	            });
+
+	            // Animate the 100% label to cue user that proper input has been received. Animate even if 100 was skipped
+	            // as in a rapid slider movement.
+	            if (totalValue === 100 || vis.prevTotal > 100 && totalValue < 100 || vis.prevTotal < 100 && totalValue > 100) {
+	                vis.hundredLabel.transition().duration(250).ease(d3.easeLinear).attr("font-size", "1.5vw").transition().delay(0).duration(250).ease(d3.easeLinear).attr("font-size", ".83vw");
+	            }
+
+	            // Track the previous total so that you can animate even if 100% was skipped over as happens with rapid
+	            // slider movement
+	            vis.prevTotal = totalValue;
 	        }
 	    }]);
 

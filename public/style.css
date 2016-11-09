@@ -54,7 +54,7 @@
   font-size: 0.83vw;
   text-anchor: middle; }
 
-.slider-guide-text, .slider-percentage, .total-guide-text {
+.slider-guide-text, .slider-percentage {
   font-size: 0.83vw;
   alignment-baseline: middle;
   baseline-shift: -5%;
@@ -113,4 +113,7 @@
   fill: red; }
 
 .total-guide-text {
-  text-anchor: start; }
+  text-anchor: start;
+  alignment-baseline: middle;
+  baseline-shift: -5%;
+  /* Fix the "not quite right" vertical alignment */ }
