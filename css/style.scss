@@ -3,6 +3,17 @@ $bar-consensus-color: #377eb8;
 $label-font-size: .88vw;
 $axis-legend-font-size: .83vw;
 
+/* Overall Styles */
+.vis-container {
+  height: 100vh;
+}
+
+/* Heading Styles */
+#dashboard-heading {
+  height: 3%;
+}
+
+/* Bar Chart Styles */
 #bar-chart {
   height: 80%;
 }
@@ -46,6 +57,6 @@ $axis-legend-font-size: .83vw;
 }
 
 #bar-chart-legend {
-  height: 10%;
+  height: 10vh;
   font-size: $axis-legend-font-size;
 }

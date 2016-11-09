@@ -59,7 +59,7 @@
 
 	var _barChart2 = _interopRequireDefault(_barChart);
 
-	var _barChartLegend = __webpack_require__(6);
+	var _barChartLegend = __webpack_require__(4);
 
 	var _barChartLegend2 = _interopRequireDefault(_barChartLegend);
 
@@ -67,7 +67,7 @@
 
 	__webpack_require__(7);
 	__webpack_require__(2);
-	__webpack_require__(4);
+	__webpack_require__(305);
 
 
 	// load data
@@ -1014,13 +1014,6 @@
 
 /***/ },
 /* 4 */
-/***/ function(module, exports) {
-
-	// removed by extract-text-webpack-plugin
-
-/***/ },
-/* 5 */,
-/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1094,6 +1087,8 @@
 	exports.default = BarChartLegend;
 
 /***/ },
+/* 5 */,
+/* 6 */,
 /* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -9853,6 +9848,12 @@
 	    return String(it).replace(regExp, replacer);
 	  };
 	};
+
+/***/ },
+/* 305 */
+/***/ function(module, exports) {
+
+	// removed by extract-text-webpack-plugin
 
 /***/ }
 /******/ ]);

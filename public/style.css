@@ -1,3 +1,12 @@
+/* Overall Styles */
+.vis-container {
+  height: 100vh; }
+
+/* Heading Styles */
+#dashboard-heading {
+  height: 3%; }
+
+/* Bar Chart Styles */
 #bar-chart {
   height: 80%; }
 
@@ -33,5 +42,5 @@
   text-anchor: middle; }
 
 #bar-chart-legend {
-  height: 10%;
+  height: 10vh;
   font-size: 0.83vw; }
