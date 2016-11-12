@@ -781,6 +781,10 @@
 
 	var _state2 = _interopRequireDefault(_state);
 
+	var _dispatch = __webpack_require__(310);
+
+	var _dispatch2 = _interopRequireDefault(_dispatch);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
@@ -798,6 +802,18 @@
 	        vis.consensus = consensusArray;
 	        vis.portfolioSelected = null;
 	        vis.initVis();
+
+	        // Populate a dictionary converting from string name to array index so that you don't have to iterate
+	        // through the entire array each time you're searching for a name
+	        vis.nameToPosition = {};
+	        vis.portfolios.forEach(function (portfolio, index) {
+	            vis.nameToPosition[portfolio.name] = index;
+	        });
+
+	        // Trigger updates when new ratios are selected using sliders
+	        _dispatch2.default.on('ratio-updated.bar', function () {
+	            return vis.calcConsensus.call(vis);
+	        });
 	    }
 
 	    _createClass(BarChart, [{
@@ -865,17 +881,10 @@
 	                })();
 	            }
 
-	            // Otherwise, filter based on the selection TODO fix this to not be hard coded
+	            // Otherwise, filter based on the selection
 	            else {
-	                    var nameToPosition = {
-	                        'Melee Weapons': 0,
-	                        'Spacecraft': 1,
-	                        'Ranged Weapons': 2,
-	                        'Ground Vehicles': 3,
-	                        'Cyber': 4,
-	                        'Experimentation': 5
-	                    };
-	                    var portfolioPosition = nameToPosition[vis.portfolioSelected];
+
+	                    var portfolioPosition = vis.nameToPosition[vis.portfolioSelected];
 
 	                    vis.filteredPortfolios = vis.portfolios[portfolioPosition].capabilities;
 	                    vis.filteredConsensus = vis.weightedConsensus[portfolioPosition].capabilities;
@@ -1156,6 +1165,10 @@
 
 	var _state2 = _interopRequireDefault(_state);
 
+	var _dispatch = __webpack_require__(310);
+
+	var _dispatch2 = _interopRequireDefault(_dispatch);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
@@ -1212,7 +1225,7 @@
 	            }).attr("y", vis.height).text("0%");
 
 	            // Add sliders
-	            vis.sliderLabels.forEach(function (label) {
+	            vis.sliderLabels.forEach(function (label, index) {
 
 	                // Append group for each
 	                var slider = vis.svg.append("g").attr("class", "slider").attr("transform", "translate(" + (vis.x(label) + vis.x.bandwidth() / 2) + ", 0)");
@@ -1224,10 +1237,26 @@
 	                }).attr("class", "track-overlay").call(d3.drag().on("start.interrupt", function () {
 	                    slider.interrupt();
 	                }).on("start drag", function () {
+
+	                    // TODO ensure that on lower screen sizes the returned values still always allow
+	                    // TODO the total percentage to === 100
+
 	                    sliderDrag(vis.y.invert(d3.event.y), label, handle, handleLabel, handleText);
 	                }).on("end", function () {
 	                    sliderEnd();
 	                }));
+
+	                var actualSetting = slider.insert("line", ".track-overlay").attr("class", "track-actual-setting").attr("y1", vis.y(_state2.default.sliderState[label])).attr("y2", vis.height);
+
+	                var eventName = "ratio-updated.slider" + index; // Create unique event name to prevent name space issues.
+	                console.log(eventName);
+	                _dispatch2.default.on(eventName, function () {
+
+	                    console.log('mixer updating due to ratio');
+
+	                    // Update the actual position indicators if the input was valid and vis updated
+	                    actualSetting.transition().duration(800).attr("y1", vis.y(_state2.default.sliderState[label])).attr("y2", vis.height);
+	                });
 
 	                slider.append("text").attr("y", vis.height * 1.3).attr("class", "slider-label").text(label);
 
@@ -1297,17 +1326,12 @@
 	            // Respond to slider end
 	            function sliderEnd() {
 
-	                console.log('slide ended');
-
 	                // Check if input is valid (adds up to 100%)
-	                if (vis.totalValue === 100) {}
+	                if (vis.totalValue === 100) {
 
-	                // TODO: Trigger update of bar graphs
-
-	                // If not, update UI and tell user what to do
-
-	                // If input is valid
-
+	                    // Trigger update of bar graphs
+	                    _dispatch2.default.call('ratio-updated');
+	                }
 	            }
 	        }
 	    }, {
@@ -10138,6 +10162,23 @@
 	};
 
 	exports.default = new stateBank();
+
+/***/ },
+/* 310 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _d = __webpack_require__(2);
+
+	// Event dispatcher for vis
+	var dispatcher = (0, _d.dispatch)('ratio-updated');
+
+	exports.default = dispatcher;
 
 /***/ }
 /******/ ]);

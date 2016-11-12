@@ -122,6 +122,11 @@ body {
   stroke-width: 0.42vw;
 }
 
+.track-actual-setting {
+  @extend .track-inset;
+  stroke: #737373;
+}
+
 .track-overlay {
   pointer-events: stroke;
   stroke-width: 2.6vw;

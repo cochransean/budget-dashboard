@@ -1,5 +1,6 @@
 import * as d3 from "d3";
 import stateBank from './state.js';
+import dispatcher from './dispatch.js';
 
 // SVG drawing area
 class BarChart {
@@ -11,6 +12,16 @@ class BarChart {
         vis.consensus = consensusArray;
         vis.portfolioSelected = null;
         vis.initVis();
+
+        // Populate a dictionary converting from string name to array index so that you don't have to iterate
+        // through the entire array each time you're searching for a name
+        vis.nameToPosition = {};
+        vis.portfolios.forEach(function(portfolio, index) {
+            vis.nameToPosition[portfolio.name] = index;
+        });
+
+        // Trigger updates when new ratios are selected using sliders
+        dispatcher.on('ratio-updated.bar', () => vis.calcConsensus.call(vis) );
     }
 
     initVis() {
@@ -90,17 +101,10 @@ class BarChart {
             vis.filteredConsensus = [].concat.apply([], arraysToFlatten[1]);
         }
 
-        // Otherwise, filter based on the selection TODO fix this to not be hard coded
+        // Otherwise, filter based on the selection
         else {
-            let nameToPosition = {
-                'Melee Weapons': 0,
-                'Spacecraft': 1,
-                'Ranged Weapons': 2,
-                'Ground Vehicles': 3,
-                'Cyber': 4,
-                'Experimentation': 5
-            };
-            let portfolioPosition = nameToPosition[vis.portfolioSelected];
+
+            let portfolioPosition = vis.nameToPosition[vis.portfolioSelected];
 
             vis.filteredPortfolios = vis.portfolios[portfolioPosition].capabilities;
             vis.filteredConsensus = vis.weightedConsensus[portfolioPosition].capabilities;

@@ -119,19 +119,19 @@
     "capabilities": [
       {
         "name": "Avengers Program",
-        "proportion": 0
+        "proportion": 0.4
       },
       {
         "name": "Radioactive Spider Research",
-        "proportion": 0
+        "proportion": 0.15
       },
       {
         "name": "Super-Soldier Serum",
-        "proportion": 0
+        "proportion": 0.2
       },
       {
         "name": "Stark Industries Grants",
-        "proportion": 1
+        "proportion": 0.25
       }
     ]
   }

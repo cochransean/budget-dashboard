@@ -1,5 +1,6 @@
 import * as d3 from "d3";
 import stateBank from './state.js';
+import dispatcher from './dispatch.js';
 
 class Mixer {
 
@@ -71,7 +72,7 @@ class Mixer {
 
 
         // Add sliders
-        vis.sliderLabels.forEach(function(label) {
+        vis.sliderLabels.forEach(function(label, index) {
 
             // Append group for each
             let slider = vis.svg.append("g")
@@ -89,10 +90,34 @@ class Mixer {
                 .call(d3.drag()
                     .on("start.interrupt", function() { slider.interrupt(); })
                     .on("start drag", function() {
+
+                        // TODO ensure that on lower screen sizes the returned values still always allow
+                        // TODO the total percentage to === 100
+
                         sliderDrag(vis.y.invert(d3.event.y), label, handle, handleLabel, handleText);
                     })
                     .on("end", function() { sliderEnd(); })
                 );
+
+            let actualSetting = slider.insert("line", ".track-overlay")
+                .attr("class", "track-actual-setting")
+                .attr("y1", vis.y(stateBank.sliderState[label]))
+                .attr("y2", vis.height);
+
+            let eventName = "ratio-updated.slider" + index; // Create unique event name to prevent name space issues.
+            console.log(eventName);
+            dispatcher
+                .on(eventName, function() {
+
+                    console.log('mixer updating due to ratio');
+
+                    // Update the actual position indicators if the input was valid and vis updated
+                    actualSetting
+                        .transition()
+                        .duration(800)
+                        .attr("y1", vis.y(stateBank.sliderState[label]))
+                        .attr("y2", vis.height);
+                });
 
             slider.append("text")
                 .attr("y", vis.height * 1.3)
@@ -200,20 +225,13 @@ class Mixer {
         // Respond to slider end
         function sliderEnd() {
 
-            console.log('slide ended');
-
             // Check if input is valid (adds up to 100%)
             if (vis.totalValue === 100) {
 
-                // TODO: Trigger update of bar graphs
+                // Trigger update of bar graphs
+                dispatcher.call('ratio-updated');
 
             }
-
-            // If not, update UI and tell user what to do
-
-            // If input is valid
-
-
         }
     }
 
