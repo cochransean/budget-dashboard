@@ -1,7 +1,7 @@
 require('babel-polyfill');
 require('d3');
 require('./css/style.scss');
-import { queue, json } from 'd3';
+import { queue, json, keys } from 'd3';
 import BarChart from './components/bar-chart.js';
 import BarChartLegend from './components/bar-chart-legend.js';
 import Mixer from './components/mixer.js';
@@ -10,17 +10,23 @@ import Mixer from './components/mixer.js';
 // load data
 queue()
     .defer(json, 'data/portfolios.json')
-    .defer(json, 'data/expert_consensus.json')
-    .defer(json, 'data/expert_consensusB.json')
-    .await(function(error, portfolios, consensusA, consensusB) {
+    .defer(json, 'data/expert_consensus_alien.json')
+    .defer(json, 'data/expert_consensus_zombie.json')
+    .defer(json, 'data/expert_consensus_mutant.json')
+    .await(function(error, portfolios, consensusA, consensusB, consensusC) {
         if (error) throw error;
-        prepData(portfolios, consensusA, consensusB);
-        let barChart = new BarChart('bar-chart', portfolios, consensusA, consensusB);
+        let consensus =  {
+            "Alien Invasion": consensusA,
+            "Zombie Apocalypse": consensusB,
+            "Mutant Super-Villain": consensusC
+        };
+        prepData(portfolios, consensus);
+        let barChart = new BarChart('bar-chart', portfolios, consensus);
         let barChartLegend = new BarChartLegend('bar-chart-legend');
         let mixer = new Mixer('mixer');
     });
 
-function prepData(portfolios, consensusA, consensusB) {
+function prepData(portfolios, consensus) {
 
     for (let portfolio of portfolios) {
 
@@ -45,8 +51,8 @@ function prepData(portfolios, consensusA, consensusB) {
         return {value: prev.value + current.value}
     }).value;
 
-    [consensusA, consensusB].forEach(function(consensusOpinion) {
-        for (let portfolio of consensusOpinion) {
+    keys(consensus).forEach(function(consensusScenario) {
+        for (let portfolio of consensus[consensusScenario]) {
 
             // Cast to numeric
             portfolio.proportion = +portfolio.proportion;

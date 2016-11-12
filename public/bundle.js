@@ -75,15 +75,20 @@
 
 
 	// load data
-	(0, _d.queue)().defer(_d.json, 'data/portfolios.json').defer(_d.json, 'data/expert_consensus.json').defer(_d.json, 'data/expert_consensusB.json').await(function (error, portfolios, consensusA, consensusB) {
+	(0, _d.queue)().defer(_d.json, 'data/portfolios.json').defer(_d.json, 'data/expert_consensus_alien.json').defer(_d.json, 'data/expert_consensus_zombie.json').defer(_d.json, 'data/expert_consensus_mutant.json').await(function (error, portfolios, consensusA, consensusB, consensusC) {
 	    if (error) throw error;
-	    prepData(portfolios, consensusA, consensusB);
-	    var barChart = new _barChart2.default('bar-chart', portfolios, consensusA, consensusB);
+	    var consensus = {
+	        "Alien Invasion": consensusA,
+	        "Zombie Apocalypse": consensusB,
+	        "Mutant Super-Villain": consensusC
+	    };
+	    prepData(portfolios, consensus);
+	    var barChart = new _barChart2.default('bar-chart', portfolios, consensus);
 	    var barChartLegend = new _barChartLegend2.default('bar-chart-legend');
 	    var mixer = new _mixer2.default('mixer');
 	});
 
-	function prepData(portfolios, consensusA, consensusB) {
+	function prepData(portfolios, consensus) {
 	    var _iteratorNormalCompletion = true;
 	    var _didIteratorError = false;
 	    var _iteratorError = undefined;
@@ -133,13 +138,13 @@
 	        return { value: prev.value + current.value };
 	    }).value;
 
-	    [consensusA, consensusB].forEach(function (consensusOpinion) {
+	    (0, _d.keys)(consensus).forEach(function (consensusScenario) {
 	        var _iteratorNormalCompletion2 = true;
 	        var _didIteratorError2 = false;
 	        var _iteratorError2 = undefined;
 
 	        try {
-	            for (var _iterator2 = consensusOpinion[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	            for (var _iterator2 = consensus[consensusScenario][Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
 	                var portfolio = _step2.value;
 
 
@@ -760,7 +765,7 @@
 /* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
@@ -772,26 +777,31 @@
 
 	var d3 = _interopRequireWildcard(_d);
 
+	var _state = __webpack_require__(309);
+
+	var _state2 = _interopRequireDefault(_state);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	// SVG drawing area
 	var BarChart = function () {
-	    function BarChart(parentDivID, portfolios, consensusA, consensusB) {
+	    function BarChart(parentDivID, portfolios, consensusArray) {
 	        _classCallCheck(this, BarChart);
 
 	        var vis = this;
 	        vis.parentDivID = '#' + parentDivID;
 	        vis.portfolios = portfolios;
-	        vis.consensusA = consensusA;
-	        vis.consensusB = consensusB;
+	        vis.consensus = consensusArray;
 	        vis.portfolioSelected = null;
 	        vis.initVis();
 	    }
 
 	    _createClass(BarChart, [{
-	        key: "initVis",
+	        key: 'initVis',
 	        value: function initVis() {
 	            var vis = this;
 
@@ -829,14 +839,11 @@
 	            }).attr('class', 'axis-label');
 	            vis.svg.append('text').attr("transform", "translate(" + vis.width * -0.04 + "," + vis.height / 2 + ") rotate(90)").attr('class', 'axis-label').text('Value (Billions of Dollars)');
 
-	            // TODO Add toggle for "use actual portfolio value, user expert-recommended portfolio value"
-
-
 	            // Calculate the dollar value of expert consensus
 	            vis.calcConsensus();
 	        }
 	    }, {
-	        key: "wrangleData",
+	        key: 'wrangleData',
 	        value: function wrangleData() {
 
 	            var vis = this;
@@ -858,14 +865,15 @@
 	                })();
 	            }
 
-	            // Otherwise, filter based on the selection
+	            // Otherwise, filter based on the selection TODO fix this to not be hard coded
 	            else {
 	                    var nameToPosition = {
 	                        'Melee Weapons': 0,
 	                        'Spacecraft': 1,
 	                        'Ranged Weapons': 2,
 	                        'Ground Vehicles': 3,
-	                        'Cyber': 4
+	                        'Cyber': 4,
+	                        'Experimentation': 5
 	                    };
 	                    var portfolioPosition = nameToPosition[vis.portfolioSelected];
 
@@ -876,7 +884,7 @@
 	            vis.updateVis();
 	        }
 	    }, {
-	        key: "updateVis",
+	        key: 'updateVis',
 	        value: function updateVis() {
 
 	            var vis = this;
@@ -978,35 +986,61 @@
 	            });
 	        }
 	    }, {
-	        key: "calcConsensus",
+	        key: 'calcConsensus',
 	        value: function calcConsensus() {
-
-	            var vis = this;
-
-	            // TODO hard-coding this until mixing board is done
-	            var sliderValue = 0;
-	            var consensusAWeight = 1 - sliderValue / 100;
-	            var consensusBWeight = 1 - consensusAWeight;
-
-	            // Make object to store weighted values in without corrupting original data
-	            vis.weightedConsensus = [];
 
 	            // Calculate the dollar value of expert consensus
 	            // This function should only be called on init and when sliders change
-	            for (var i = 0; i < vis.consensusA.length; i++) {
+	            var vis = this;
+
+	            // Store weighted values without corrupting original data
+	            vis.weightedConsensus = [];
+
+	            // Loop over each portfolio, calculating weighted value of each
+
+	            var _loop = function _loop(i) {
+
 	                vis.weightedConsensus.push({
-	                    'name': vis.consensusA[i].name,
+	                    'name': vis.portfolios[i].name,
 	                    'capabilities': []
 	                });
-	                vis.weightedConsensus[i].value = consensusAWeight * vis.consensusA[i].value + consensusBWeight * vis.consensusB[i].value;
-	                for (var j = 0; j < vis.consensusA[i].capabilities.length; j++) {
+
+	                // Calculate the total weighted value of each capability
+
+	                var _loop2 = function _loop2(j) {
+
+	                    // Add an object for each capability
 	                    vis.weightedConsensus[i].capabilities.push({
-	                        'name': vis.consensusA[i].capabilities[j].name,
-	                        'portfolio': vis.consensusA[i].name
+	                        'name': vis.portfolios[i].capabilities[j].name,
+	                        'portfolio': vis.portfolios[i].name // Need to track this so that capabilities can 'stack'
 	                    });
-	                    vis.weightedConsensus[i].capabilities[j].value = consensusAWeight * vis.consensusA[i].capabilities[j].value + consensusBWeight * vis.consensusB[i].capabilities[j].value;
+
+	                    var capabilityWeightedValue = 0;
+	                    d3.keys(vis.consensus).forEach(function (consensusScenario) {
+
+	                        // Index to the proper portfolio within current scenario and get unweighted value
+	                        var currentValue = vis.consensus[consensusScenario][i].capabilities[j].value;
+
+	                        // Weight the value by applying the slider values
+	                        var currentWeight = _state2.default.sliderState[consensusScenario] / 100;
+
+	                        // Add the weighted values up to get an "expected value";
+	                        capabilityWeightedValue += currentValue * currentWeight;
+	                    });
+
+	                    // Update the total
+	                    vis.weightedConsensus[i].capabilities[j].value = capabilityWeightedValue;
+	                };
+
+	                for (var j = 0; j < vis.portfolios[i].capabilities.length; j++) {
+	                    _loop2(j);
 	                }
+	            };
+
+	            for (var i = 0; i < vis.portfolios.length; i++) {
+	                _loop(i);
 	            }
+
 	            vis.wrangleData();
 	        }
 	    }]);
@@ -1107,8 +1141,6 @@
 	var _state = __webpack_require__(309);
 
 	var _state2 = _interopRequireDefault(_state);
-
-	var _barChart = __webpack_require__(3);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -10080,6 +10112,8 @@
 
 	var stateBank = function stateBank() {
 	    _classCallCheck(this, stateBank);
+
+	    // TODO make this not hard coded
 
 	    // Variable to track state of sliders; initial values = initial state
 	    this.sliderState = {

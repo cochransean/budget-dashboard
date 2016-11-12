@@ -1,14 +1,14 @@
 import * as d3 from "d3";
+import stateBank from './state.js';
 
 // SVG drawing area
 class BarChart {
 
-    constructor(parentDivID, portfolios, consensusA, consensusB) {
+    constructor(parentDivID, portfolios, consensusArray) {
         const vis = this;
         vis.parentDivID = '#' + parentDivID;
         vis.portfolios = portfolios;
-        vis.consensusA = consensusA;
-        vis.consensusB = consensusB;
+        vis.consensus = consensusArray;
         vis.portfolioSelected = null;
         vis.initVis();
     }
@@ -66,8 +66,6 @@ class BarChart {
             .attr('class', 'axis-label')
             .text('Value (Billions of Dollars)');
 
-        // TODO Add toggle for "use actual portfolio value, user expert-recommended portfolio value"
-
 
         // Calculate the dollar value of expert consensus
         vis.calcConsensus();
@@ -92,14 +90,15 @@ class BarChart {
             vis.filteredConsensus = [].concat.apply([], arraysToFlatten[1]);
         }
 
-        // Otherwise, filter based on the selection
+        // Otherwise, filter based on the selection TODO fix this to not be hard coded
         else {
             let nameToPosition = {
                 'Melee Weapons': 0,
                 'Spacecraft': 1,
                 'Ranged Weapons': 2,
                 'Ground Vehicles': 3,
-                'Cyber': 4
+                'Cyber': 4,
+                'Experimentation': 5
             };
             let portfolioPosition = nameToPosition[vis.portfolioSelected];
 
@@ -232,35 +231,48 @@ class BarChart {
 
     calcConsensus() {
 
-        const vis = this;
-
-        // TODO hard-coding this until mixing board is done
-        let sliderValue = 0;
-        let consensusAWeight = 1 - sliderValue / 100;
-        let consensusBWeight = 1 - consensusAWeight;
-
-        // Make object to store weighted values in without corrupting original data
-        vis.weightedConsensus = [];
-
         // Calculate the dollar value of expert consensus
         // This function should only be called on init and when sliders change
-        for (let i = 0; i < vis.consensusA.length; i++) {
+        const vis = this;
+
+        // Store weighted values without corrupting original data
+        vis.weightedConsensus = [];
+
+        // Loop over each portfolio, calculating weighted value of each
+        for (let i = 0; i < vis.portfolios.length; i++) {
+
             vis.weightedConsensus.push({
-                'name': vis.consensusA[i].name,
+                'name': vis.portfolios[i].name,
                 'capabilities': []
             });
-            vis.weightedConsensus[i].value = consensusAWeight * vis.consensusA[i].value +
-                    consensusBWeight * vis.consensusB[i].value;
-            for (let j = 0; j < vis.consensusA[i].capabilities.length; j++) {
+
+            // Calculate the total weighted value of each capability
+            for (let j = 0; j < vis.portfolios[i].capabilities.length; j++) {
+
+                // Add an object for each capability
                 vis.weightedConsensus[i].capabilities.push({
-                    'name': vis.consensusA[i].capabilities[j].name,
-                    'portfolio': vis.consensusA[i].name
+                    'name': vis.portfolios[i].capabilities[j].name,
+                    'portfolio': vis.portfolios[i].name // Need to track this so that capabilities can 'stack'
                 });
-                vis.weightedConsensus[i].capabilities[j].value =
-                    consensusAWeight * vis.consensusA[i].capabilities[j].value +
-                    consensusBWeight * vis.consensusB[i].capabilities[j].value;
+
+                let capabilityWeightedValue = 0;
+                d3.keys(vis.consensus).forEach(function(consensusScenario) {
+
+                    // Index to the proper portfolio within current scenario and get unweighted value
+                    let currentValue = vis.consensus[consensusScenario][i].capabilities[j].value;
+
+                    // Weight the value by applying the slider values
+                    let currentWeight = stateBank.sliderState[consensusScenario] / 100;
+
+                    // Add the weighted values up to get an "expected value";
+                    capabilityWeightedValue += currentValue * currentWeight
+                });
+
+                // Update the total
+                vis.weightedConsensus[i].capabilities[j].value = capabilityWeightedValue;
             }
         }
+
         vis.wrangleData();
     }
 }

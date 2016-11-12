@@ -1,6 +1,5 @@
 import * as d3 from "d3";
 import stateBank from './state.js';
-import { margin  } from './bar-chart.js';
 
 class Mixer {
 

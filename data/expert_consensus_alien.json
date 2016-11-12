@@ -1,15 +1,15 @@
 [
   {
     "name": "Melee Weapons",
-    "proportion": 0.5,
+    "proportion": 0.2,
     "capabilities": [
       {
         "name": "Chainsaws",
-        "proportion": 0.8
+        "proportion": 0.2
       },
       {
         "name": "Lightsabers",
-        "proportion": 0.1
+        "proportion": 0.6
       },
       {
         "name": "Entrenching Tools",
@@ -17,25 +17,25 @@
       },
       {
         "name": "Bayonets",
-        "proportion": 0.1
+        "proportion": 0.2
       }
     ]
   },
   {
     "name": "Spacecraft",
-    "proportion": 0.1,
+    "proportion": 0.4,
     "capabilities": [
       {
         "name": "Millennium Falcon",
-        "proportion": 0.4
+        "proportion": 0.25
       },
       {
         "name": "Heart of Gold",
-        "proportion": 0.2
+        "proportion": 0.25
       },
       {
         "name": "Battlestar Galactica",
-        "proportion": 0.1
+        "proportion": 0.25
       },
       {
         "name": "USS Enterprise",
@@ -43,7 +43,7 @@
       },
       {
         "name": "Nostromo",
-        "proportion": 0.2
+        "proportion": 0.15
       }
     ]
   },
@@ -53,33 +53,33 @@
     "capabilities": [
       {
         "name": "Molecular Disruption Devices",
-        "proportion": 0.1
+        "proportion": 0.8
       },
       {
         "name": "Crossbows",
-        "proportion": 0.9
+        "proportion": 0.05
       },
       {
         "name": "Catapults",
-        "proportion": 0
+        "proportion": 0.05
       },
       {
         "name": "Trebuchets",
-        "proportion": 0
+        "proportion": 0.1
       }
     ]
   },
   {
     "name": "Ground Vehicles",
-    "proportion": 0.3,
+    "proportion": 0.1,
     "capabilities": [
       {
         "name": "Transformers",
-        "proportion": 0.3
+        "proportion": 0.6
       },
       {
         "name": "Heavily Armored Buses",
-        "proportion": 0.2
+        "proportion": 0
       },
       {
         "name": "Hovercraft",
@@ -91,25 +91,47 @@
       },
       {
         "name": "DeLoreans With Flux Capacitors",
-        "proportion": 0.1
+        "proportion": 0
       }
     ]
   },
   {
     "name": "Cyber",
-    "proportion": 0,
+    "proportion": 0.05,
     "capabilities": [
       {
         "name": "Tron Cycles",
-        "proportion": 0.1
+        "proportion": 0.5
       },
       {
         "name": "Instantaneous Kung-Fu Instruction",
-        "proportion": 0.8
+        "proportion": 0.4
       },
       {
         "name": "Other Capabilities",
         "proportion": 0.1
+      }
+    ]
+  },
+  {
+    "name": "Experimentation",
+    "proportion": 0.15,
+    "capabilities": [
+      {
+        "name": "Avengers Program",
+        "proportion": 0.4
+      },
+      {
+        "name": "Radioactive Spider Research",
+        "proportion": 0.05
+      },
+      {
+        "name": "Super-Soldier Serum",
+        "proportion": 0.15
+      },
+      {
+        "name": "Stark Industries Grants",
+        "proportion": 0.4
       }
     ]
   }
