@@ -246,6 +246,20 @@ class BarChart {
                 'capabilities': []
             });
 
+            // Calculate the total weighted value of each portfolio
+            vis.weightedConsensus[i].value = 0;
+            d3.keys(vis.consensus).forEach(function(consensusScenario) {
+
+                // Index to the proper portfolio within current scenario and get unweighted value
+                let currentValue = vis.consensus[consensusScenario][i].value;
+
+                // Weight the value by applying the slider values
+                let currentWeight = stateBank.sliderState[consensusScenario] / 100;
+
+                // Add the weighted values up to get an "expected value";
+                vis.weightedConsensus[i].value += currentValue * currentWeight
+            });
+
             // Calculate the total weighted value of each capability
             for (let j = 0; j < vis.portfolios[i].capabilities.length; j++) {
 

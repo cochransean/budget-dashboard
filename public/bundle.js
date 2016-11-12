@@ -1005,6 +1005,20 @@
 	                    'capabilities': []
 	                });
 
+	                // Calculate the total weighted value of each portfolio
+	                vis.weightedConsensus[i].value = 0;
+	                d3.keys(vis.consensus).forEach(function (consensusScenario) {
+
+	                    // Index to the proper portfolio within current scenario and get unweighted value
+	                    var currentValue = vis.consensus[consensusScenario][i].value;
+
+	                    // Weight the value by applying the slider values
+	                    var currentWeight = _state2.default.sliderState[consensusScenario] / 100;
+
+	                    // Add the weighted values up to get an "expected value";
+	                    vis.weightedConsensus[i].value += currentValue * currentWeight;
+	                });
+
 	                // Calculate the total weighted value of each capability
 
 	                var _loop2 = function _loop2(j) {
