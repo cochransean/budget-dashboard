@@ -1,5 +1,6 @@
 import * as d3 from "d3";
-import stateBank from './state.js'
+import stateBank from './state.js';
+import { margin  } from './bar-chart.js';
 
 class Mixer {
 
@@ -17,11 +18,14 @@ class Mixer {
         // Setup margins in responsive way; actual size is determined by CSS
         let chartDiv = d3.select(vis.parentDivID);
         let chartDivRect = chartDiv.node().getBoundingClientRect();
-        vis.width = chartDivRect.width;
-        vis.height = chartDivRect.height;
-        vis.margin = {top: vis.height * 0.25, right: vis.width * 0.05, bottom: vis.height * 0.2, left: vis.width * 0.05};
-        vis.width = vis.width - vis.margin.left - vis.margin.right;
-        vis.height = vis.height - vis.margin.top - vis.margin.bottom;
+        vis.margin = {
+            top: chartDivRect.height * 0.25,
+            right: chartDivRect.width * 0.2,
+            bottom: chartDivRect.height * 0.2,
+            left: chartDivRect.width * 0.065
+        };
+        vis.width = chartDivRect.width - vis.margin.left - vis.margin.right;
+        vis.height = chartDivRect.height - vis.margin.top - vis.margin.bottom;
 
         vis.svg = chartDiv.append("svg")
             .attr("width", vis.width + vis.margin.left + vis.margin.right)
@@ -38,8 +42,8 @@ class Mixer {
 
         // Setup scales
         vis.x = d3.scaleBand()
-            .domain(vis.sliderLabels.concat(['Total'])) // Leave a spot for the total percentage widget
-            .paddingInner([0.2])
+            .domain(vis.sliderLabels)
+            .paddingInner([0])
             .rangeRound([0, vis.width]);
 
         vis.y = d3.scaleLinear()
@@ -87,16 +91,18 @@ class Mixer {
                     .on("start.interrupt", function() { slider.interrupt(); })
                     .on("start drag", function() {
                         sliderDrag(vis.y.invert(d3.event.y), label, handle, handleLabel, handleText);
-                    }));
+                    })
+                    .on("end", function() { sliderEnd(); })
+                );
 
             slider.append("text")
-                .attr("y", vis.height * 1.25)
+                .attr("y", vis.height * 1.3)
                 .attr("class", "slider-label")
                 .text(label);
 
             let handle = slider.insert("circle", ".track-overlay")
                 .attr("class", "handle")
-                .attr("r", 9)
+                .attr("r", 0.013 * vis.width)
                 .attr("cy", vis.y(stateBank.sliderState[label]));
 
             let handleLabel = slider.insert("g", ".track-overlay")
@@ -127,7 +133,7 @@ class Mixer {
 
         // Constants that will be reused
         const totalPercentageWidth = vis.x.bandwidth() / 4;
-        const totalStartX = vis.x("Total") + vis.x.bandwidth() / 2 - totalPercentageWidth / 2;
+        const totalStartX = vis.width;
         const totalLabelX = totalStartX + totalPercentageWidth + sliderTextPadding;
 
         // Add total bar itself
@@ -160,6 +166,14 @@ class Mixer {
             .attr("y", vis.height / 2)
             .text("100%");
 
+        //  Add 'Total' Text Label in bold at bottom
+        vis.svg.append("text")
+            .attr("y", vis.height * 1.3)
+            .attr("x", vis.width + totalPercentageWidth / 2)
+            .attr("class", "total-label-text")
+            .text("Total");
+
+
         vis.updateVis();
 
 
@@ -187,13 +201,20 @@ class Mixer {
         // Respond to slider end
         function sliderEnd() {
 
+            console.log('slide ended');
+
             // Check if input is valid (adds up to 100%)
+            if (vis.totalValue === 100) {
+
+                // TODO: Trigger update of bar graphs
+
+            }
 
             // If not, update UI and tell user what to do
 
             // If input is valid
 
-            // Trigger update of bar graphs
+
         }
     }
 
@@ -201,21 +222,21 @@ class Mixer {
         let vis = this;
 
         // Update length of the total bar
-        let totalValue = d3.values(stateBank.sliderState).reduce(function(prev, current) {
+        vis.totalValue = d3.values(stateBank.sliderState).reduce(function(prev, current) {
             return prev + current
         });
 
         vis.totalBar
-            .attr("y", vis.y1(totalValue))
-            .attr("height", vis.height - vis.y1(totalValue))
+            .attr("y", vis.y1(vis.totalValue))
+            .attr("height", vis.height - vis.y1(vis.totalValue))
             .attr("class", function() {
-                return totalValue === 100 ? 'total-bar-good': 'total-bar-bad'
+                return vis.totalValue === 100 ? 'total-bar-good': 'total-bar-bad'
             });
 
         // Animate the 100% label to cue user that proper input has been received. Animate even if 100 was skipped
         // as in a rapid slider movement.
-        if (totalValue === 100 || (vis.prevTotal > 100 && totalValue < 100) ||
-            (vis.prevTotal < 100 && totalValue > 100)) {
+        if (vis.totalValue === 100 || (vis.prevTotal > 100 && vis.totalValue < 100) ||
+            (vis.prevTotal < 100 && vis.totalValue > 100)) {
             vis.hundredLabel
                 .transition()
                 .duration(250)
@@ -230,7 +251,7 @@ class Mixer {
 
         // Track the previous total so that you can animate even if 100% was skipped over as happens with rapid
         // slider movement
-        vis.prevTotal = totalValue;
+        vis.prevTotal = vis.totalValue;
 
     }
 

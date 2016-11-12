@@ -1,12 +1,18 @@
-$bar-value-color: #e31a1c;
+$bar-value-color: #ff7f00;
 $bar-consensus-color: #377eb8;
 $label-font-size: .88vw;
 $axis-legend-font-size: .83vw;
-$minor-border-width: 0.25vh;
+$minor-border-width: 0.1vw;
+$background-color: #f0f0f0;
 
 /* Overall Styles */
+body {
+  background-color: $background-color;
+}
+
 .vis-container {
   height: 100vh;
+
 }
 
 /* Heading Styles */
@@ -30,7 +36,7 @@ $minor-border-width: 0.25vh;
 }
 
 .blank {
-  fill: white;
+  fill: $background-color;
 }
 
 .axis {
@@ -58,7 +64,7 @@ $minor-border-width: 0.25vh;
 
 #mixer {
   height: 100%;
-  border: black 3px;
+  border: black 0.16vw;
 }
 
 .slider-guide, .total-guide {
@@ -89,13 +95,13 @@ $minor-border-width: 0.25vh;
 }
 
 .handle-label {
-  fill: white;
+  fill: $background-color;
   stroke: black;
   stroke-width: $minor-border-width;
 }
 
 .ticks {
-  font: 10px sans-serif;
+  font: 0.52vw sans-serif;
 }
 
 .track,
@@ -108,44 +114,49 @@ $minor-border-width: 0.25vh;
 .track {
   stroke: #000;
   stroke-opacity: 0.3;
-  stroke-width: 10px;
+  stroke-width: 0.52vw;
 }
 
 .track-inset {
-  stroke: #ddd;
-  stroke-width: 8px;
+  stroke: #d9d9d9;
+  stroke-width: 0.42vw;
 }
 
 .track-overlay {
   pointer-events: stroke;
-  stroke-width: 50px;
+  stroke-width: 2.6vw;
   cursor: crosshair;
 }
 
 .handle {
-  fill: #fff;
+  fill: #d9d9d9;
   stroke: #000;
   stroke-opacity: 0.5;
-  stroke-width: 1.25px;
+  stroke-width: 0.065vw;
 }
 
 /* Total Percentage Widget Styles */
 .total-outline {
-  fill: #fff;
+  fill: $background-color;
   stroke: #000;
   stroke-width: $minor-border-width
 }
 
 .total-bar-good {
-  fill: green;
+  fill: #4daf4a;
 }
 
 .total-bar-bad {
-  fill: red;
+  fill: #e31a1c;
 }
 
 .total-guide-text {
   text-anchor: start;
   alignment-baseline: middle;
   baseline-shift: -5%; /* Fix the "not quite right" vertical alignment */
+}
+
+.total-label-text {
+  @extend .slider-label;
+  font-weight: 800;
 }

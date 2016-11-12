@@ -1,4 +1,7 @@
 /* Overall Styles */
+body {
+  background-color: #f0f0f0; }
+
 .vis-container {
   height: 100vh; }
 
@@ -11,15 +14,15 @@
   height: 70%; }
 
 .bar-value, .swatch-value {
-  fill: #e31a1c;
-  stroke: #e31a1c; }
+  fill: #ff7f00;
+  stroke: #ff7f00; }
 
 .bar-consensus, .swatch-consensus {
   fill: #377eb8;
   stroke: #377eb8; }
 
 .blank {
-  fill: white; }
+  fill: #f0f0f0; }
 
 .axis {
   font-weight: 500;
@@ -42,15 +45,15 @@
 
 #mixer {
   height: 100%;
-  border: black 3px; }
+  border: black 0.16vw; }
 
 .slider-guide, .total-guide {
   stroke: black;
-  stroke-width: 0.25vh;
+  stroke-width: 0.1vw;
   stroke-dasharray: 5, 5; }
 
 /* Slider Styles */
-.slider-label {
+.slider-label, .total-label-text {
   font-size: 0.83vw;
   text-anchor: middle; }
 
@@ -67,12 +70,12 @@
   text-anchor: start; }
 
 .handle-label {
-  fill: white;
+  fill: #f0f0f0;
   stroke: black;
-  stroke-width: 0.25vh; }
+  stroke-width: 0.1vw; }
 
 .ticks {
-  font: 10px sans-serif; }
+  font: 0.52vw sans-serif; }
 
 .track,
 .track-inset,
@@ -83,37 +86,40 @@
 .track {
   stroke: #000;
   stroke-opacity: 0.3;
-  stroke-width: 10px; }
+  stroke-width: 0.52vw; }
 
 .track-inset {
-  stroke: #ddd;
-  stroke-width: 8px; }
+  stroke: #d9d9d9;
+  stroke-width: 0.42vw; }
 
 .track-overlay {
   pointer-events: stroke;
-  stroke-width: 50px;
+  stroke-width: 2.6vw;
   cursor: crosshair; }
 
 .handle {
-  fill: #fff;
+  fill: #d9d9d9;
   stroke: #000;
   stroke-opacity: 0.5;
-  stroke-width: 1.25px; }
+  stroke-width: 0.065vw; }
 
 /* Total Percentage Widget Styles */
 .total-outline {
-  fill: #fff;
+  fill: #f0f0f0;
   stroke: #000;
-  stroke-width: 0.25vh; }
+  stroke-width: 0.1vw; }
 
 .total-bar-good {
-  fill: green; }
+  fill: #4daf4a; }
 
 .total-bar-bad {
-  fill: red; }
+  fill: #e31a1c; }
 
 .total-guide-text {
   text-anchor: start;
   alignment-baseline: middle;
   baseline-shift: -5%;
   /* Fix the "not quite right" vertical alignment */ }
+
+.total-label-text {
+  font-weight: 800; }

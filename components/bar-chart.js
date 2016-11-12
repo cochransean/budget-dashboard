@@ -19,11 +19,13 @@ class BarChart {
         // Setup margins in responsive way; actual size is determined by CSS
         let chartDiv = d3.select(vis.parentDivID);
         let chartDivRect = chartDiv.node().getBoundingClientRect();
-        vis.width = chartDivRect.width;
-        vis.height = chartDivRect.height;
-        vis.margin = {top: vis.height * 0.1, right: vis.width * 0.1, bottom: vis.height * 0.1, left: vis.width * 0.1};
-        vis.width = vis.width - vis.margin.left - vis.margin.right;
-        vis.height = vis.height - vis.margin.top - vis.margin.bottom;
+        vis.margin = {
+            top: chartDivRect.height * 0.1,
+            right: chartDivRect.width * 0.1,
+            bottom: chartDivRect.height * 0.1,
+            left: chartDivRect.width * 0.1};
+        vis.width = chartDivRect.width - vis.margin.left - vis.margin.right;
+        vis.height = chartDivRect.height - vis.margin.top - vis.margin.bottom;
 
         vis.svg = chartDiv.append("svg")
             .attr("width", vis.width + vis.margin.left + vis.margin.right)

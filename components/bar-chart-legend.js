@@ -29,7 +29,7 @@ class BarChartLegend {
 
         // Add legend
         let legendGroup = vis.svg.append('g');
-        let swatchWidth = .1 * vis.width;
+        let swatchWidth = vis.height / 3;
 
         ['swatch-value', 'swatch-consensus'].forEach(function(cssClass, index) {
             legendGroup.append('rect')
