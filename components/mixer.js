@@ -7,7 +7,7 @@ class Mixer {
     constructor(parentDivID) {
         const vis = this;
         vis.parentDivID = '#' + parentDivID;
-        vis.sliderLabels = d3.keys(stateBank.sliderState);
+        vis.sliderLabels = stateBank.getSliderNames();
         vis.initVis();
     }
 
@@ -90,10 +90,6 @@ class Mixer {
                 .call(d3.drag()
                     .on("start.interrupt", function() { slider.interrupt(); })
                     .on("start drag", function() {
-
-                        // TODO ensure that on lower screen sizes the returned values still always allow
-                        // TODO the total percentage to === 100
-
                         sliderDrag(vis.y.invert(d3.event.y), label, handle, handleLabel, handleText);
                     })
                     .on("end", function() { sliderEnd(); })
@@ -101,21 +97,18 @@ class Mixer {
 
             let actualSetting = slider.insert("line", ".track-overlay")
                 .attr("class", "track-actual-setting")
-                .attr("y1", vis.y(stateBank.sliderState[label]))
+                .attr("y1", vis.y(stateBank.getSlider(label)))
                 .attr("y2", vis.height);
 
             let eventName = "ratio-updated.slider" + index; // Create unique event name to prevent name space issues.
-            console.log(eventName);
             dispatcher
                 .on(eventName, function() {
-
-                    console.log('mixer updating due to ratio');
 
                     // Update the actual position indicators if the input was valid and vis updated
                     actualSetting
                         .transition()
                         .duration(800)
-                        .attr("y1", vis.y(stateBank.sliderState[label]))
+                        .attr("y1", vis.y(stateBank.getSlider(label)))
                         .attr("y2", vis.height);
                 });
 
@@ -127,10 +120,10 @@ class Mixer {
             let handle = slider.insert("circle", ".track-overlay")
                 .attr("class", "handle")
                 .attr("r", 0.013 * vis.width)
-                .attr("cy", vis.y(stateBank.sliderState[label]));
+                .attr("cy", vis.y(stateBank.getSlider(label)));
 
             let handleLabel = slider.insert("g", ".track-overlay")
-                .attr("transform", "translate(" + sliderTextPadding + "," + vis.y(stateBank.sliderState[label]) + ")");
+                .attr("transform", "translate(" + sliderTextPadding + "," + vis.y(stateBank.getSlider(label)) + ")");
 
             const handleLabelHeight = vis.height * 0.25;
             const handleLabelWidth = vis.x.bandwidth() * 0.2;
@@ -144,7 +137,7 @@ class Mixer {
             let handleText = handleLabel.append("text")
                 .attr("class", "slider-percentage")
                 .attr("x", handleTextPadding)
-                .text(function() { return stateBank.sliderState[label] + "%" });
+                .text(function() { return stateBank.getSlider(label) + "%" });
 
         });
 
@@ -208,15 +201,23 @@ class Mixer {
             // Round to avoid floating point errors where total !== 100
             value = Math.round(value);
 
+            // Update the slider state
+            stateBank.setSlider(sliderID, value);
+
+            // Ensure that on lower screen sizes the returned values still always allow total percentage to === 100
+            // since there is something not enough precision; Make handle "snap" when close to 100
+            let delta = 100 - stateBank.sliderTotal;
+            if (Math.abs(delta) <= 3) {
+                value = value + delta;
+                stateBank.setSlider(sliderID, value);
+            }
+
             // Move the UI SVG pieces
             handle.attr("cy", vis.y(value));
             handleLabel.attr("transform", "translate(" + sliderTextPadding + "," + vis.y(value) + ")");
 
             // Update the text
             handleText.text(value + "%");
-
-            // Update the slider state
-            stateBank.sliderState[sliderID] = Math.round(value); // Round to avoid floating point errors
 
             // Update the total percentage widget
             vis.updateVis()
@@ -226,7 +227,7 @@ class Mixer {
         function sliderEnd() {
 
             // Check if input is valid (adds up to 100%)
-            if (vis.totalValue === 100) {
+            if (stateBank.sliderTotal === 100) {
 
                 // Trigger update of bar graphs
                 dispatcher.call('ratio-updated');
@@ -239,21 +240,17 @@ class Mixer {
         let vis = this;
 
         // Update length of the total bar
-        vis.totalValue = d3.values(stateBank.sliderState).reduce(function(prev, current) {
-            return prev + current
-        });
-
         vis.totalBar
-            .attr("y", vis.y1(vis.totalValue))
-            .attr("height", vis.height - vis.y1(vis.totalValue))
+            .attr("y", vis.y1(stateBank.sliderTotal))
+            .attr("height", vis.height - vis.y1(stateBank.sliderTotal))
             .attr("class", function() {
-                return vis.totalValue === 100 ? 'total-bar-good': 'total-bar-bad'
+                return stateBank.sliderTotal === 100 ? 'total-bar-good': 'total-bar-bad'
             });
 
         // Animate the 100% label to cue user that proper input has been received. Animate even if 100 was skipped
         // as in a rapid slider movement.
-        if (vis.totalValue === 100 || (vis.prevTotal > 100 && vis.totalValue < 100) ||
-            (vis.prevTotal < 100 && vis.totalValue > 100)) {
+        if (stateBank.sliderTotal === 100 || (vis.prevTotal > 100 && stateBank.sliderTotal < 100) ||
+            (vis.prevTotal < 100 && stateBank.sliderTotal > 100)) {
             vis.hundredLabel
                 .transition()
                 .duration(250)
@@ -268,10 +265,9 @@ class Mixer {
 
         // Track the previous total so that you can animate even if 100% was skipped over as happens with rapid
         // slider movement
-        vis.prevTotal = vis.totalValue;
+        vis.prevTotal = stateBank.sliderTotal;
 
     }
-
 
 }
 

@@ -86,6 +86,8 @@
 	    var barChart = new _barChart2.default('bar-chart', portfolios, consensus);
 	    var barChartLegend = new _barChartLegend2.default('bar-chart-legend');
 	    var mixer = new _mixer2.default('mixer');
+
+	    // TODO: reload visualizations after window resizing
 	});
 
 	function prepData(portfolios, consensus) {
@@ -1022,7 +1024,7 @@
 	                    var currentValue = vis.consensus[consensusScenario][i].value;
 
 	                    // Weight the value by applying the slider values
-	                    var currentWeight = _state2.default.sliderState[consensusScenario] / 100;
+	                    var currentWeight = _state2.default.getSlider(consensusScenario) / 100;
 
 	                    // Add the weighted values up to get an "expected value";
 	                    vis.weightedConsensus[i].value += currentValue * currentWeight;
@@ -1045,7 +1047,7 @@
 	                        var currentValue = vis.consensus[consensusScenario][i].capabilities[j].value;
 
 	                        // Weight the value by applying the slider values
-	                        var currentWeight = _state2.default.sliderState[consensusScenario] / 100;
+	                        var currentWeight = _state2.default.getSlider(consensusScenario) / 100;
 
 	                        // Add the weighted values up to get an "expected value";
 	                        capabilityWeightedValue += currentValue * currentWeight;
@@ -1181,7 +1183,7 @@
 
 	        var vis = this;
 	        vis.parentDivID = '#' + parentDivID;
-	        vis.sliderLabels = d3.keys(_state2.default.sliderState);
+	        vis.sliderLabels = _state2.default.getSliderNames();
 	        vis.initVis();
 	    }
 
@@ -1237,32 +1239,25 @@
 	                }).attr("class", "track-overlay").call(d3.drag().on("start.interrupt", function () {
 	                    slider.interrupt();
 	                }).on("start drag", function () {
-
-	                    // TODO ensure that on lower screen sizes the returned values still always allow
-	                    // TODO the total percentage to === 100
-
 	                    sliderDrag(vis.y.invert(d3.event.y), label, handle, handleLabel, handleText);
 	                }).on("end", function () {
 	                    sliderEnd();
 	                }));
 
-	                var actualSetting = slider.insert("line", ".track-overlay").attr("class", "track-actual-setting").attr("y1", vis.y(_state2.default.sliderState[label])).attr("y2", vis.height);
+	                var actualSetting = slider.insert("line", ".track-overlay").attr("class", "track-actual-setting").attr("y1", vis.y(_state2.default.getSlider(label))).attr("y2", vis.height);
 
 	                var eventName = "ratio-updated.slider" + index; // Create unique event name to prevent name space issues.
-	                console.log(eventName);
 	                _dispatch2.default.on(eventName, function () {
 
-	                    console.log('mixer updating due to ratio');
-
 	                    // Update the actual position indicators if the input was valid and vis updated
-	                    actualSetting.transition().duration(800).attr("y1", vis.y(_state2.default.sliderState[label])).attr("y2", vis.height);
+	                    actualSetting.transition().duration(800).attr("y1", vis.y(_state2.default.getSlider(label))).attr("y2", vis.height);
 	                });
 
 	                slider.append("text").attr("y", vis.height * 1.3).attr("class", "slider-label").text(label);
 
-	                var handle = slider.insert("circle", ".track-overlay").attr("class", "handle").attr("r", 0.013 * vis.width).attr("cy", vis.y(_state2.default.sliderState[label]));
+	                var handle = slider.insert("circle", ".track-overlay").attr("class", "handle").attr("r", 0.013 * vis.width).attr("cy", vis.y(_state2.default.getSlider(label)));
 
-	                var handleLabel = slider.insert("g", ".track-overlay").attr("transform", "translate(" + sliderTextPadding + "," + vis.y(_state2.default.sliderState[label]) + ")");
+	                var handleLabel = slider.insert("g", ".track-overlay").attr("transform", "translate(" + sliderTextPadding + "," + vis.y(_state2.default.getSlider(label)) + ")");
 
 	                var handleLabelHeight = vis.height * 0.25;
 	                var handleLabelWidth = vis.x.bandwidth() * 0.2;
@@ -1270,7 +1265,7 @@
 
 	                var handleTextPadding = vis.x.bandwidth() * 0.01;
 	                var handleText = handleLabel.append("text").attr("class", "slider-percentage").attr("x", handleTextPadding).text(function () {
-	                    return _state2.default.sliderState[label] + "%";
+	                    return _state2.default.getSlider(label) + "%";
 	                });
 	            });
 
@@ -1309,15 +1304,23 @@
 	                // Round to avoid floating point errors where total !== 100
 	                value = Math.round(value);
 
+	                // Update the slider state
+	                _state2.default.setSlider(sliderID, value);
+
+	                // Ensure that on lower screen sizes the returned values still always allow total percentage to === 100
+	                // since there is something not enough precision; Make handle "snap" when close to 100
+	                var delta = 100 - _state2.default.sliderTotal;
+	                if (Math.abs(delta) <= 3) {
+	                    value = value + delta;
+	                    _state2.default.setSlider(sliderID, value);
+	                }
+
 	                // Move the UI SVG pieces
 	                handle.attr("cy", vis.y(value));
 	                handleLabel.attr("transform", "translate(" + sliderTextPadding + "," + vis.y(value) + ")");
 
 	                // Update the text
 	                handleText.text(value + "%");
-
-	                // Update the slider state
-	                _state2.default.sliderState[sliderID] = Math.round(value); // Round to avoid floating point errors
 
 	                // Update the total percentage widget
 	                vis.updateVis();
@@ -1327,7 +1330,7 @@
 	            function sliderEnd() {
 
 	                // Check if input is valid (adds up to 100%)
-	                if (vis.totalValue === 100) {
+	                if (_state2.default.sliderTotal === 100) {
 
 	                    // Trigger update of bar graphs
 	                    _dispatch2.default.call('ratio-updated');
@@ -1340,23 +1343,19 @@
 	            var vis = this;
 
 	            // Update length of the total bar
-	            vis.totalValue = d3.values(_state2.default.sliderState).reduce(function (prev, current) {
-	                return prev + current;
-	            });
-
-	            vis.totalBar.attr("y", vis.y1(vis.totalValue)).attr("height", vis.height - vis.y1(vis.totalValue)).attr("class", function () {
-	                return vis.totalValue === 100 ? 'total-bar-good' : 'total-bar-bad';
+	            vis.totalBar.attr("y", vis.y1(_state2.default.sliderTotal)).attr("height", vis.height - vis.y1(_state2.default.sliderTotal)).attr("class", function () {
+	                return _state2.default.sliderTotal === 100 ? 'total-bar-good' : 'total-bar-bad';
 	            });
 
 	            // Animate the 100% label to cue user that proper input has been received. Animate even if 100 was skipped
 	            // as in a rapid slider movement.
-	            if (vis.totalValue === 100 || vis.prevTotal > 100 && vis.totalValue < 100 || vis.prevTotal < 100 && vis.totalValue > 100) {
+	            if (_state2.default.sliderTotal === 100 || vis.prevTotal > 100 && _state2.default.sliderTotal < 100 || vis.prevTotal < 100 && _state2.default.sliderTotal > 100) {
 	                vis.hundredLabel.transition().duration(250).ease(d3.easeLinear).attr("font-size", "1.5vw").transition().delay(0).duration(250).ease(d3.easeLinear).attr("font-size", ".83vw");
 	            }
 
 	            // Track the previous total so that you can animate even if 100% was skipped over as happens with rapid
 	            // slider movement
-	            vis.prevTotal = vis.totalValue;
+	            vis.prevTotal = _state2.default.sliderTotal;
 	        }
 	    }]);
 
@@ -10138,7 +10137,7 @@
 /***/ },
 /* 308 */,
 /* 309 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
@@ -10146,20 +10145,65 @@
 	    value: true
 	});
 
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _d = __webpack_require__(2);
+
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var stateBank = function stateBank() {
-	    _classCallCheck(this, stateBank);
+	var stateBank = function () {
+	    function stateBank() {
+	        _classCallCheck(this, stateBank);
 
-	    // TODO make this not hard coded
+	        // TODO make this not hard coded
 
-	    // Variable to track state of sliders; initial values = initial state
-	    this.sliderState = {
-	        'Alien Invasion': 100,
-	        'Zombie Apocalypse': 0,
-	        'Mutant Super-Villain': 0
-	    };
-	};
+	        // Variable to track state of sliders; initial values = initial state
+	        this._sliderState = {
+	            'Alien Invasion': 100,
+	            'Zombie Apocalypse': 0,
+	            'Mutant Super-Villain': 0
+	        };
+
+	        // Calculate the total
+	        this.sliderTotal = this.calcTotal();
+	    }
+
+	    // Changes the value of a label and recalculates the total
+
+
+	    _createClass(stateBank, [{
+	        key: 'setSlider',
+	        value: function setSlider(label, value) {
+	            this._sliderState[label] = value;
+	            this.sliderTotal = this.calcTotal();
+	        }
+
+	        // Returns the value of a label
+
+	    }, {
+	        key: 'getSlider',
+	        value: function getSlider(label) {
+	            return this._sliderState[label];
+	        }
+
+	        // Gets slider names
+
+	    }, {
+	        key: 'getSliderNames',
+	        value: function getSliderNames() {
+	            return (0, _d.keys)(this._sliderState);
+	        }
+	    }, {
+	        key: 'calcTotal',
+	        value: function calcTotal() {
+	            return (0, _d.values)(this._sliderState).reduce(function (prev, current) {
+	                return prev + current;
+	            });
+	        }
+	    }]);
+
+	    return stateBank;
+	}();
 
 	exports.default = new stateBank();
 

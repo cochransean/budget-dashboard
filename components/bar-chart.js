@@ -258,7 +258,7 @@ class BarChart {
                 let currentValue = vis.consensus[consensusScenario][i].value;
 
                 // Weight the value by applying the slider values
-                let currentWeight = stateBank.sliderState[consensusScenario] / 100;
+                let currentWeight = stateBank.getSlider(consensusScenario) / 100;
 
                 // Add the weighted values up to get an "expected value";
                 vis.weightedConsensus[i].value += currentValue * currentWeight
@@ -280,7 +280,7 @@ class BarChart {
                     let currentValue = vis.consensus[consensusScenario][i].capabilities[j].value;
 
                     // Weight the value by applying the slider values
-                    let currentWeight = stateBank.sliderState[consensusScenario] / 100;
+                    let currentWeight = stateBank.getSlider(consensusScenario) / 100;
 
                     // Add the weighted values up to get an "expected value";
                     capabilityWeightedValue += currentValue * currentWeight
