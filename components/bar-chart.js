@@ -31,7 +31,7 @@ class BarChart {
         let chartDiv = d3.select(vis.parentDivID);
         let chartDivRect = chartDiv.node().getBoundingClientRect();
         vis.margin = {
-            top: chartDivRect.height * 0.1,
+            top: chartDivRect.height * 0.025,
             right: chartDivRect.width * 0.1,
             bottom: chartDivRect.height * 0.1,
             left: chartDivRect.width * 0.1};
@@ -72,8 +72,9 @@ class BarChart {
             .attr('x', () => vis.width / 2)
             .attr('y', () => vis.height * .0925)
             .attr('class', 'axis-label');
+        let yLabelOffset = vis.width >= vis.height ? vis.width * -0.05: vis.width * -0.09;
         vis.svg.append('text')
-            .attr("transform", "translate(" + vis.width * -0.04 + "," + vis.height / 2 + ") rotate(90)")
+            .attr("transform", "translate(" + yLabelOffset + "," + vis.height / 2 + ") rotate(90)")
             .attr('class', 'axis-label')
             .text('Value (Billions of Dollars)');
 

@@ -7,7 +7,9 @@ body {
 
 /* Heading Styles */
 #dashboard-heading {
-  height: 3%; }
+  font-size: 2.5vmax;
+  height: 2.5vmax;
+  margin-bottom: 0.5vmax; }
 
 /* Bar Chart Styles */
 #bar-chart {
@@ -26,17 +28,17 @@ body {
 
 .axis {
   font-weight: 500;
-  font-size: 0.83vw; }
+  font-size: 0.83vmax; }
 
 .axis-label {
-  font-size: 0.88vw;
+  font-size: 0.88vmax;
   font-weight: bold;
   fill: black;
   text-anchor: middle; }
 
 #bar-chart-legend {
   height: 100%;
-  font-size: 0.83vw; }
+  font-size: 0.83vmax; }
 
 /* Overall Control and Legend Styles */
 #control-row {
@@ -49,16 +51,16 @@ body {
 
 .slider-guide, .total-guide {
   stroke: black;
-  stroke-width: 0.1vw;
+  stroke-width: 0.1vmax;
   stroke-dasharray: 5, 5; }
 
 /* Slider Styles */
 .slider-label, .total-label-text {
-  font-size: 0.83vw;
+  font-size: 0.83vmax;
   text-anchor: middle; }
 
 .slider-guide-text, .slider-percentage {
-  font-size: 0.83vw;
+  font-size: 0.83vmax;
   alignment-baseline: middle;
   baseline-shift: -5%;
   /* Fix the "not quite right" vertical alignment */ }
@@ -72,7 +74,7 @@ body {
 .handle-label {
   fill: #f0f0f0;
   stroke: black;
-  stroke-width: 0.1vw; }
+  stroke-width: 0.1vmax; }
 
 .ticks {
   font: 0.52vw sans-serif; }
@@ -83,7 +85,6 @@ body {
 .track-overlay {
   stroke-linecap: round; }
 
-/* TODO make these measurements responsive too */
 .track {
   stroke: #000;
   stroke-opacity: 0.3;
@@ -111,7 +112,7 @@ body {
 .total-outline {
   fill: #f0f0f0;
   stroke: #000;
-  stroke-width: 0.1vw; }
+  stroke-width: 0.1vmax; }
 
 .total-bar-good {
   fill: #4daf4a; }

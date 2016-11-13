@@ -24,9 +24,6 @@ queue()
         let barChart = new BarChart('bar-chart', portfolios, consensus);
         let barChartLegend = new BarChartLegend('bar-chart-legend');
         let mixer = new Mixer('mixer');
-
-        // TODO: reload visualizations after window resizing
-
     });
 
 function prepData(portfolios, consensus) {

@@ -22,7 +22,7 @@ class Mixer {
             top: chartDivRect.height * 0.25,
             right: chartDivRect.width * 0.2,
             bottom: chartDivRect.height * 0.2,
-            left: chartDivRect.width * 0.065
+            left: 0
         };
         vis.width = chartDivRect.width - vis.margin.left - vis.margin.right;
         vis.height = chartDivRect.height - vis.margin.top - vis.margin.bottom;

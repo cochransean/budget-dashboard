@@ -3,8 +3,6 @@ import { values, keys } from 'd3';
 class stateBank {
     constructor() {
 
-        // TODO make this not hard coded
-
         // Variable to track state of sliders; initial values = initial state
         this._sliderState = {
             'Alien Invasion': 100,

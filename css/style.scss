@@ -1,8 +1,8 @@
 $bar-value-color: #ff7f00;
 $bar-consensus-color: #377eb8;
-$label-font-size: .88vw;
-$axis-legend-font-size: .83vw;
-$minor-border-width: 0.1vw;
+$label-font-size: .88vmax;
+$axis-legend-font-size: .83vmax;
+$minor-border-width: 0.1vmax;
 $background-color: #f0f0f0;
 
 /* Overall Styles */
@@ -17,7 +17,9 @@ body {
 
 /* Heading Styles */
 #dashboard-heading {
-  height: 3%;
+  font-size: 2.5vmax;
+  height: 2.5vmax;
+  margin-bottom: 0.5vmax;
 }
 
 /* Bar Chart Styles */
@@ -110,7 +112,6 @@ body {
   stroke-linecap: round;
 }
 
-/* TODO make these measurements responsive too */
 .track {
   stroke: #000;
   stroke-opacity: 0.3;

@@ -86,8 +86,6 @@
 	    var barChart = new _barChart2.default('bar-chart', portfolios, consensus);
 	    var barChartLegend = new _barChartLegend2.default('bar-chart-legend');
 	    var mixer = new _mixer2.default('mixer');
-
-	    // TODO: reload visualizations after window resizing
 	});
 
 	function prepData(portfolios, consensus) {
@@ -827,7 +825,7 @@
 	            var chartDiv = d3.select(vis.parentDivID);
 	            var chartDivRect = chartDiv.node().getBoundingClientRect();
 	            vis.margin = {
-	                top: chartDivRect.height * 0.1,
+	                top: chartDivRect.height * 0.025,
 	                right: chartDivRect.width * 0.1,
 	                bottom: chartDivRect.height * 0.1,
 	                left: chartDivRect.width * 0.1 };
@@ -855,7 +853,8 @@
 	            }).attr('y', function () {
 	                return vis.height * .0925;
 	            }).attr('class', 'axis-label');
-	            vis.svg.append('text').attr("transform", "translate(" + vis.width * -0.04 + "," + vis.height / 2 + ") rotate(90)").attr('class', 'axis-label').text('Value (Billions of Dollars)');
+	            var yLabelOffset = vis.width >= vis.height ? vis.width * -0.05 : vis.width * -0.09;
+	            vis.svg.append('text').attr("transform", "translate(" + yLabelOffset + "," + vis.height / 2 + ") rotate(90)").attr('class', 'axis-label').text('Value (Billions of Dollars)');
 
 	            // Calculate the dollar value of expert consensus
 	            vis.calcConsensus();
@@ -1113,11 +1112,14 @@
 	            // Setup margins in responsive way; actual size is determined by CSS
 	            var chartDiv = d3.select(vis.parentDivID);
 	            var chartDivRect = chartDiv.node().getBoundingClientRect();
-	            vis.width = chartDivRect.width;
-	            vis.height = chartDivRect.height;
-	            vis.margin = { top: vis.height * 0.1, right: vis.width * 0.1, bottom: vis.height * 0.1, left: vis.width * 0.1 };
-	            vis.width = vis.width - vis.margin.left - vis.margin.right;
-	            vis.height = vis.height - vis.margin.top - vis.margin.bottom;
+	            vis.margin = {
+	                top: chartDivRect.height * 0.1,
+	                right: chartDivRect.width * 0.1,
+	                bottom: chartDivRect.height * 0.1,
+	                left: chartDivRect.width * 0.1
+	            };
+	            vis.width = chartDivRect.width - vis.margin.left - vis.margin.right;
+	            vis.height = chartDivRect.height - vis.margin.top - vis.margin.bottom;
 
 	            vis.svg = chartDiv.append("svg").attr("width", vis.width + vis.margin.left + vis.margin.right).attr("height", vis.height + vis.margin.top + vis.margin.bottom).append("g").attr("transform", "translate(" + vis.margin.left + "," + vis.margin.top + ")");
 
@@ -1134,9 +1136,18 @@
 	            // Add legend labels
 	            ['Actual Programmed', 'Expert Consensus'].forEach(function (text, index) {
 	                legendGroup.append('text').attr('x', function () {
-	                    return swatchWidth * 1.2;
+	                    if (vis.width >= vis.height) {
+	                        return swatchWidth * 1.2;
+	                    } else {
+	                        return 0;
+	                    }
 	                }).attr('y', function () {
-	                    return swatchWidth / 1.6 + index * swatchWidth * 2;
+	                    if (vis.width >= vis.height) {
+	                        return swatchWidth / 1.6 + index * swatchWidth * 2;
+	                    } else {
+	                        var verticalPadding = 8;
+	                        return (index * 2 + 1) * swatchWidth + verticalPadding;
+	                    }
 	                }).text(text);
 	            });
 	        }
@@ -1200,7 +1211,7 @@
 	                top: chartDivRect.height * 0.25,
 	                right: chartDivRect.width * 0.2,
 	                bottom: chartDivRect.height * 0.2,
-	                left: chartDivRect.width * 0.065
+	                left: 0
 	            };
 	            vis.width = chartDivRect.width - vis.margin.left - vis.margin.right;
 	            vis.height = chartDivRect.height - vis.margin.top - vis.margin.bottom;
@@ -10154,8 +10165,6 @@
 	var stateBank = function () {
 	    function stateBank() {
 	        _classCallCheck(this, stateBank);
-
-	        // TODO make this not hard coded
 
 	        // Variable to track state of sliders; initial values = initial state
 	        this._sliderState = {
