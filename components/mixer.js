@@ -1,6 +1,7 @@
 import * as d3 from "d3";
 import stateBank from './state.js';
 import dispatcher from './dispatch.js';
+import { viewWidth, viewHeight, mobile } from '../index.js';
 
 class Mixer {
 
@@ -18,11 +19,13 @@ class Mixer {
         // Setup margins in responsive way; actual size is determined by CSS
         let chartDiv = d3.select(vis.parentDivID);
         let chartDivRect = chartDiv.node().getBoundingClientRect();
+
+        // TODO get rid of all the ternarys here and elsewhere; do check once for sections like this
         vis.margin = {
-            top: chartDivRect.height * 0.25,
+            top: viewWidth > mobile ? chartDivRect.height * 0.25: chartDivRect.height * 0.1,
             right: chartDivRect.width * 0.2,
-            bottom: chartDivRect.height * 0.2,
-            left: 0
+            bottom: viewWidth > mobile ? chartDivRect.height * 0.2: chartDivRect.height * 0.4,
+            left: viewWidth > mobile ? 0: chartDivRect.width * 0.05
         };
         vis.width = chartDivRect.width - vis.margin.left - vis.margin.right;
         vis.height = chartDivRect.height - vis.margin.top - vis.margin.bottom;
@@ -60,7 +63,7 @@ class Mixer {
             .attr("y1", vis.height)
             .attr("y2", vis.height);
 
-        const sliderTextPadding = vis.x.bandwidth() * 0.05;
+        const sliderTextPadding = viewWidth > mobile ? vis.x.bandwidth() * 0.05: vis.x.bandwidth() * 0.12;
 
         vis.svg.append("text")
             .attr("class", "slider-guide-text")
@@ -113,20 +116,34 @@ class Mixer {
                 });
 
             slider.append("text")
-                .attr("y", vis.height * 1.3)
                 .attr("class", "slider-label")
+                .attr("transform", function() {
+                    if (viewWidth > mobile) {
+                        return "translate(0," + vis.height * 1.3 + ")"
+                    }
+                    else {
+                        return "translate(0," + vis.height * 1.15 + "), rotate(45)"
+                    }
+                })
                 .text(label);
 
             let handle = slider.insert("circle", ".track-overlay")
                 .attr("class", "handle")
-                .attr("r", 0.013 * vis.width)
+                .attr("r", function() {
+                    if (viewWidth > mobile) {
+                        return 0.013 * vis.width
+                    }
+                    else {
+                        return 0.03 * vis.width
+                    }
+                })
                 .attr("cy", vis.y(stateBank.getSlider(label)));
 
             let handleLabel = slider.insert("g", ".track-overlay")
                 .attr("transform", "translate(" + sliderTextPadding + "," + vis.y(stateBank.getSlider(label)) + ")");
 
-            const handleLabelHeight = vis.height * 0.25;
-            const handleLabelWidth = vis.x.bandwidth() * 0.2;
+            const handleLabelHeight = viewWidth > mobile ? vis.height * 0.25: vis.height * 0.14;
+            const handleLabelWidth = viewWidth > mobile ? vis.x.bandwidth() * 0.2: vis.x.bandwidth() * 0.45;
             handleLabel.append("rect")
                 .attr("height", handleLabelHeight)
                 .attr("width", handleLabelWidth)
@@ -174,7 +191,16 @@ class Mixer {
         vis.hundredLabel = vis.svg.append("text")
             .attr("x", totalLabelX)
             .attr("class", "total-guide-text")
-            .attr("font-size", ".83vw") // Set size here instead of CSS to support animation.
+            .attr("font-size", function() {
+
+                // Set size here instead of CSS to support animation.
+                if (viewWidth > mobile) {
+                    return ".83vmax"
+                }
+                else {
+                    return "1.8vmax"
+                }
+            })
             .text("200%+")
             .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
             .attr("y", vis.height)
@@ -185,8 +211,15 @@ class Mixer {
 
         //  Add 'Total' Text Label in bold at bottom
         vis.svg.append("text")
-            .attr("y", vis.height * 1.3)
-            .attr("x", vis.width + totalPercentageWidth / 2)
+            .attr('transform', function() {
+                if (viewWidth > mobile) {
+                    return "translate(" + (vis.width + totalPercentageWidth / 2) + "," + vis.height * 1.3 + ")"
+                }
+                else {
+                    return "translate(" + (vis.width + totalPercentageWidth / 2) + "," + vis.height * 1.15 + ")" +
+                        "rotate(45)"
+                }
+            })
             .attr("class", "total-label-text")
             .text("Total");
 
@@ -255,12 +288,26 @@ class Mixer {
                 .transition()
                 .duration(250)
                 .ease(d3.easeLinear)
-                .attr("font-size", "1.5vw")
+                .attr("font-size", function() {
+                    if (viewWidth > mobile) {
+                        return "1.5vmax"
+                    }
+                    else {
+                        return "3.5vmax"
+                    }
+                })
                 .transition()
                 .delay(0)
                 .duration(250)
                 .ease(d3.easeLinear)
-                .attr("font-size", ".83vw");
+                .attr("font-size", function() {
+                    if (viewWidth > mobile) {
+                        return ".83vmax"
+                    }
+                    else {
+                        return "1.8vmax"
+                    }
+                });
         }
 
         // Track the previous total so that you can animate even if 100% was skipped over as happens with rapid

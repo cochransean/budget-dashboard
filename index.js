@@ -6,6 +6,13 @@ import BarChart from './components/bar-chart.js';
 import BarChartLegend from './components/bar-chart-legend.js';
 import Mixer from './components/mixer.js';
 
+// Breakpoints
+const mobile = 500;
+
+
+// Get viewport sizing
+let viewWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+let viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 
 // load data
 queue()
@@ -71,5 +78,5 @@ function prepData(portfolios, consensus) {
     });
 }
 
-// TODO: add mixing board to send current 'mix' of problem sets
+export { mobile, viewWidth, viewHeight }
 

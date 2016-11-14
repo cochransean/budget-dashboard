@@ -1,6 +1,7 @@
 import * as d3 from "d3";
 import stateBank from './state.js';
 import dispatcher from './dispatch.js';
+import { viewWidth, viewHeight, mobile } from '../index.js';
 
 // SVG drawing area
 class BarChart {
@@ -33,8 +34,9 @@ class BarChart {
         vis.margin = {
             top: chartDivRect.height * 0.025,
             right: chartDivRect.width * 0.1,
-            bottom: chartDivRect.height * 0.1,
-            left: chartDivRect.width * 0.1};
+            bottom: viewWidth > mobile ? chartDivRect.height * 0.1: chartDivRect.height * 0.3,
+            left: viewWidth > mobile ? chartDivRect.width * 0.1: chartDivRect.width * 0.15
+        };
         vis.width = chartDivRect.width - vis.margin.left - vis.margin.right;
         vis.height = chartDivRect.height - vis.margin.top - vis.margin.bottom;
 
@@ -68,11 +70,18 @@ class BarChart {
         vis.yAxisGroup = vis.svg.append('g')
             .attr("class", "y-axis axis");
 
-        vis.xAxisText = vis.xAxisGroup.append('text')
+        vis.xAxisText = vis.svg.append('text')
             .attr('x', () => vis.width / 2)
-            .attr('y', () => vis.height * .0925)
+            .attr('y', function() {
+                if (viewWidth > mobile) {
+                    return vis.height * 1.1
+                }
+                else {
+                    return vis.height * 1.4
+                }
+            })
             .attr('class', 'axis-label');
-        let yLabelOffset = vis.width >= vis.height ? vis.width * -0.05: vis.width * -0.09;
+        let yLabelOffset = viewWidth > mobile ? vis.width * -0.038: vis.width * -0.16;
         vis.svg.append('text')
             .attr("transform", "translate(" + yLabelOffset + "," + vis.height / 2 + ") rotate(90)")
             .attr('class', 'axis-label')
@@ -223,7 +232,16 @@ class BarChart {
         vis.xAxisGroup
             .transition()
             .duration(800)
-            .call(vis.xAxis);
+            .call(vis.xAxis)
+            .selectAll('.x-axis text')
+            .attr('transform', function() {
+                if (viewWidth > mobile) {
+                    return "translate(0,0)"
+                }
+                else {
+                    return "rotate(45)"
+                }
+            });
         vis.yAxisGroup
             .transition()
             .duration(800)

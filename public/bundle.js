@@ -53,6 +53,11 @@
 
 	'use strict';
 
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.viewHeight = exports.viewWidth = exports.mobile = undefined;
+
 	var _d = __webpack_require__(2);
 
 	var _barChart = __webpack_require__(3);
@@ -73,6 +78,13 @@
 	__webpack_require__(2);
 	__webpack_require__(307);
 
+
+	// Breakpoints
+	var mobile = 500;
+
+	// Get viewport sizing
+	var viewWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+	var viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 
 	// load data
 	(0, _d.queue)().defer(_d.json, 'data/portfolios.json').defer(_d.json, 'data/expert_consensus_alien.json').defer(_d.json, 'data/expert_consensus_zombie.json').defer(_d.json, 'data/expert_consensus_mutant.json').await(function (error, portfolios, consensusA, consensusB, consensusC) {
@@ -200,7 +212,9 @@
 	    });
 	}
 
-	// TODO: add mixing board to send current 'mix' of problem sets
+	exports.mobile = mobile;
+	exports.viewWidth = viewWidth;
+	exports.viewHeight = viewHeight;
 
 /***/ },
 /* 2 */
@@ -785,6 +799,8 @@
 
 	var _dispatch2 = _interopRequireDefault(_dispatch);
 
+	var _index = __webpack_require__(1);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
@@ -827,8 +843,9 @@
 	            vis.margin = {
 	                top: chartDivRect.height * 0.025,
 	                right: chartDivRect.width * 0.1,
-	                bottom: chartDivRect.height * 0.1,
-	                left: chartDivRect.width * 0.1 };
+	                bottom: _index.viewWidth > _index.mobile ? chartDivRect.height * 0.1 : chartDivRect.height * 0.3,
+	                left: _index.viewWidth > _index.mobile ? chartDivRect.width * 0.1 : chartDivRect.width * 0.15
+	            };
 	            vis.width = chartDivRect.width - vis.margin.left - vis.margin.right;
 	            vis.height = chartDivRect.height - vis.margin.top - vis.margin.bottom;
 
@@ -848,12 +865,16 @@
 	            vis.xAxisGroup = vis.svg.append('g').attr('transform', 'translate(0,' + vis.height + ')').attr("class", "x-axis axis");
 	            vis.yAxisGroup = vis.svg.append('g').attr("class", "y-axis axis");
 
-	            vis.xAxisText = vis.xAxisGroup.append('text').attr('x', function () {
+	            vis.xAxisText = vis.svg.append('text').attr('x', function () {
 	                return vis.width / 2;
 	            }).attr('y', function () {
-	                return vis.height * .0925;
+	                if (_index.viewWidth > _index.mobile) {
+	                    return vis.height * 1.1;
+	                } else {
+	                    return vis.height * 1.4;
+	                }
 	            }).attr('class', 'axis-label');
-	            var yLabelOffset = vis.width >= vis.height ? vis.width * -0.05 : vis.width * -0.09;
+	            var yLabelOffset = _index.viewWidth > _index.mobile ? vis.width * -0.038 : vis.width * -0.16;
 	            vis.svg.append('text').attr("transform", "translate(" + yLabelOffset + "," + vis.height / 2 + ") rotate(90)").attr('class', 'axis-label').text('Value (Billions of Dollars)');
 
 	            // Calculate the dollar value of expert consensus
@@ -988,7 +1009,13 @@
 	            }).attr('class', 'bar-consensus').style("opacity", 1);
 
 	            // update axes
-	            vis.xAxisGroup.transition().duration(800).call(vis.xAxis);
+	            vis.xAxisGroup.transition().duration(800).call(vis.xAxis).selectAll('.x-axis text').attr('transform', function () {
+	                if (_index.viewWidth > _index.mobile) {
+	                    return "translate(0,0)";
+	                } else {
+	                    return "rotate(45)";
+	                }
+	            });
 	            vis.yAxisGroup.transition().duration(800).call(vis.yAxis);
 
 	            vis.xAxisText.text(function () {
@@ -1126,6 +1153,7 @@
 	            // Add legend
 	            var legendGroup = vis.svg.append('g');
 	            var swatchWidth = vis.height / 3;
+	            swatchWidth = swatchWidth < vis.width ? swatchWidth : vis.width;
 
 	            ['swatch-value', 'swatch-consensus'].forEach(function (cssClass, index) {
 	                legendGroup.append('rect').attr('x', 0).attr('y', function () {
@@ -1145,7 +1173,7 @@
 	                    if (vis.width >= vis.height) {
 	                        return swatchWidth / 1.6 + index * swatchWidth * 2;
 	                    } else {
-	                        var verticalPadding = 8;
+	                        var verticalPadding = 12;
 	                        return (index * 2 + 1) * swatchWidth + verticalPadding;
 	                    }
 	                }).text(text);
@@ -1182,6 +1210,8 @@
 
 	var _dispatch2 = _interopRequireDefault(_dispatch);
 
+	var _index = __webpack_require__(1);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
@@ -1207,11 +1237,13 @@
 	            // Setup margins in responsive way; actual size is determined by CSS
 	            var chartDiv = d3.select(vis.parentDivID);
 	            var chartDivRect = chartDiv.node().getBoundingClientRect();
+
+	            // TODO get rid of all the ternarys here and elsewhere; do check once for sections like this
 	            vis.margin = {
-	                top: chartDivRect.height * 0.25,
+	                top: _index.viewWidth > _index.mobile ? chartDivRect.height * 0.25 : chartDivRect.height * 0.1,
 	                right: chartDivRect.width * 0.2,
-	                bottom: chartDivRect.height * 0.2,
-	                left: 0
+	                bottom: _index.viewWidth > _index.mobile ? chartDivRect.height * 0.2 : chartDivRect.height * 0.4,
+	                left: _index.viewWidth > _index.mobile ? 0 : chartDivRect.width * 0.05
 	            };
 	            vis.width = chartDivRect.width - vis.margin.left - vis.margin.right;
 	            vis.height = chartDivRect.height - vis.margin.top - vis.margin.bottom;
@@ -1231,7 +1263,7 @@
 	                return this.parentNode.appendChild(this.cloneNode(true));
 	            }).attr("y1", vis.height).attr("y2", vis.height);
 
-	            var sliderTextPadding = vis.x.bandwidth() * 0.05;
+	            var sliderTextPadding = _index.viewWidth > _index.mobile ? vis.x.bandwidth() * 0.05 : vis.x.bandwidth() * 0.12;
 
 	            vis.svg.append("text").attr("class", "slider-guide-text").attr("x", vis.x(vis.sliderLabels[0]) - sliderTextPadding + vis.x.bandwidth() / 2).text("100%").select(function () {
 	                return this.parentNode.appendChild(this.cloneNode(true));
@@ -1264,14 +1296,26 @@
 	                    actualSetting.transition().duration(800).attr("y1", vis.y(_state2.default.getSlider(label))).attr("y2", vis.height);
 	                });
 
-	                slider.append("text").attr("y", vis.height * 1.3).attr("class", "slider-label").text(label);
+	                slider.append("text").attr("class", "slider-label").attr("transform", function () {
+	                    if (_index.viewWidth > _index.mobile) {
+	                        return "translate(0," + vis.height * 1.3 + ")";
+	                    } else {
+	                        return "translate(0," + vis.height * 1.15 + "), rotate(45)";
+	                    }
+	                }).text(label);
 
-	                var handle = slider.insert("circle", ".track-overlay").attr("class", "handle").attr("r", 0.013 * vis.width).attr("cy", vis.y(_state2.default.getSlider(label)));
+	                var handle = slider.insert("circle", ".track-overlay").attr("class", "handle").attr("r", function () {
+	                    if (_index.viewWidth > _index.mobile) {
+	                        return 0.013 * vis.width;
+	                    } else {
+	                        return 0.03 * vis.width;
+	                    }
+	                }).attr("cy", vis.y(_state2.default.getSlider(label)));
 
 	                var handleLabel = slider.insert("g", ".track-overlay").attr("transform", "translate(" + sliderTextPadding + "," + vis.y(_state2.default.getSlider(label)) + ")");
 
-	                var handleLabelHeight = vis.height * 0.25;
-	                var handleLabelWidth = vis.x.bandwidth() * 0.2;
+	                var handleLabelHeight = _index.viewWidth > _index.mobile ? vis.height * 0.25 : vis.height * 0.14;
+	                var handleLabelWidth = _index.viewWidth > _index.mobile ? vis.x.bandwidth() * 0.2 : vis.x.bandwidth() * 0.45;
 	                handleLabel.append("rect").attr("height", handleLabelHeight).attr("width", handleLabelWidth).attr("y", -(handleLabelHeight / 2)).attr("class", "handle-label");
 
 	                var handleTextPadding = vis.x.bandwidth() * 0.01;
@@ -1297,15 +1341,28 @@
 	            // Add axis guide line and labels
 	            vis.svg.append("line").attr("x1", totalStartX).attr("x2", totalStartX + totalPercentageWidth).attr("class", "total-guide").attr("y1", vis.height / 2).attr("y2", vis.height / 2);
 
-	            vis.hundredLabel = vis.svg.append("text").attr("x", totalLabelX).attr("class", "total-guide-text").attr("font-size", ".83vw") // Set size here instead of CSS to support animation.
-	            .text("200%+").select(function () {
+	            vis.hundredLabel = vis.svg.append("text").attr("x", totalLabelX).attr("class", "total-guide-text").attr("font-size", function () {
+
+	                // Set size here instead of CSS to support animation.
+	                if (_index.viewWidth > _index.mobile) {
+	                    return ".83vmax";
+	                } else {
+	                    return "1.8vmax";
+	                }
+	            }).text("200%+").select(function () {
 	                return this.parentNode.appendChild(this.cloneNode(true));
 	            }).attr("y", vis.height).text("0%").select(function () {
 	                return this.parentNode.appendChild(this.cloneNode(true));
 	            }).attr("y", vis.height / 2).text("100%");
 
 	            //  Add 'Total' Text Label in bold at bottom
-	            vis.svg.append("text").attr("y", vis.height * 1.3).attr("x", vis.width + totalPercentageWidth / 2).attr("class", "total-label-text").text("Total");
+	            vis.svg.append("text").attr('transform', function () {
+	                if (_index.viewWidth > _index.mobile) {
+	                    return "translate(" + (vis.width + totalPercentageWidth / 2) + "," + vis.height * 1.3 + ")";
+	                } else {
+	                    return "translate(" + (vis.width + totalPercentageWidth / 2) + "," + vis.height * 1.15 + ")" + "rotate(45)";
+	                }
+	            }).attr("class", "total-label-text").text("Total");
 
 	            vis.updateVis();
 
@@ -1361,7 +1418,19 @@
 	            // Animate the 100% label to cue user that proper input has been received. Animate even if 100 was skipped
 	            // as in a rapid slider movement.
 	            if (_state2.default.sliderTotal === 100 || vis.prevTotal > 100 && _state2.default.sliderTotal < 100 || vis.prevTotal < 100 && _state2.default.sliderTotal > 100) {
-	                vis.hundredLabel.transition().duration(250).ease(d3.easeLinear).attr("font-size", "1.5vw").transition().delay(0).duration(250).ease(d3.easeLinear).attr("font-size", ".83vw");
+	                vis.hundredLabel.transition().duration(250).ease(d3.easeLinear).attr("font-size", function () {
+	                    if (_index.viewWidth > _index.mobile) {
+	                        return "1.5vmax";
+	                    } else {
+	                        return "3.5vmax";
+	                    }
+	                }).transition().delay(0).duration(250).ease(d3.easeLinear).attr("font-size", function () {
+	                    if (_index.viewWidth > _index.mobile) {
+	                        return ".83vmax";
+	                    } else {
+	                        return "1.8vmax";
+	                    }
+	                });
 	            }
 
 	            // Track the previous total so that you can animate even if 100% was skipped over as happens with rapid

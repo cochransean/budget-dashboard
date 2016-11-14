@@ -1,9 +1,43 @@
 $bar-value-color: #ff7f00;
 $bar-consensus-color: #377eb8;
-$label-font-size: .88vmax;
-$axis-legend-font-size: .83vmax;
+$label-text-size-desktop: 0.88vmax;
+$label-text-size-mobile: 2vmax;
+$minor-text-size-desktop: 0.83vmax;
+$minor-text-size-mobile: 1.8vmax;
 $minor-border-width: 0.1vmax;
 $background-color: #f0f0f0;
+
+/* Responsive MixIns */
+@mixin minor-text {
+  @media screen and (max-width: 500px) /* Mobile */ {
+    font-size: $minor-text-size-mobile;
+  }
+
+  @media screen and (min-width: 501px) /* Desktop and Tablet */ {
+    font-size: $minor-text-size-desktop;
+  }
+}
+
+@mixin label-text {
+  @media screen and (max-width: 500px) /* Mobile */ {
+    font-size: $label-text-size-mobile;
+  }
+
+  @media screen and (min-width: 501px) /* Desktop and Tablet */ {
+    font-size: $label-text-size-desktop;
+  }
+}
+
+/* Rotating itself is done in Javascript for IE compatibility */
+@mixin rotating-label {
+  @media screen and (max-width: 500px) /* Mobile */ {
+    text-anchor: start;
+  }
+
+  @media screen and (min-width: 501px) /* Desktop and Tablet */ {
+    text-anchor: middle;
+  }
+}
 
 /* Overall Styles */
 body {
@@ -24,7 +58,13 @@ body {
 
 /* Bar Chart Styles */
 #bar-chart {
-  height: 70%;
+  @media screen and (max-width: 500px) /* Mobile */ {
+    height: 50%;
+  }
+
+  @media screen and (min-width: 501px) /* Desktop and Tablet */ {
+    height: 70%;
+  }
 }
 
 .bar-value, .swatch-value {
@@ -42,26 +82,36 @@ body {
 }
 
 .axis {
+  @include minor-text;
   font-weight: 500;
-  font-size: $axis-legend-font-size;
+}
+
+.x-axis {
+  @include rotating-label;
 }
 
 .axis-label {
-  font-size: $label-font-size;
+  @include label-text;
+  text-anchor: middle;
   font-weight: bold;
   fill: black;
-  text-anchor: middle;
 }
 
 #bar-chart-legend {
+  @include minor-text;
   height: 100%;
-  font-size: $axis-legend-font-size;
 }
 
 /* Overall Control and Legend Styles */
 #control-row {
   margin: 0;
-  height: 22%;
+  @media screen and (max-width: 500px) /* Mobile */ {
+    height: 42%;
+  }
+
+  @media screen and (min-width: 501px) /* Desktop and Tablet */ {
+    height: 22%;
+  }
 }
 
 #mixer {
@@ -78,12 +128,12 @@ body {
 
 /* Slider Styles */
 .slider-label {
-  font-size: $axis-legend-font-size;
-  text-anchor: middle;
+  @include minor-text;
+  @include rotating-label;
 }
 
 .slider-guide-text, .slider-percentage {
-  font-size: $axis-legend-font-size;
+  @include minor-text;
   alignment-baseline: middle;
   baseline-shift: -5%; /* Fix the "not quite right" vertical alignment */
 }
@@ -115,12 +165,24 @@ body {
 .track {
   stroke: #000;
   stroke-opacity: 0.3;
-  stroke-width: 0.52vw;
+  @media screen and (max-width: 500px) /* Mobile */ {
+    stroke-width: 2.06vw;
+  }
+
+  @media screen and (min-width: 501px) /* Desktop and Tablet */ {
+    stroke-width: 0.52vw;
+  }
 }
 
 .track-inset {
   stroke: #d9d9d9;
-  stroke-width: 0.42vw;
+  @media screen and (max-width: 500px) /* Mobile */ {
+    stroke-width: 1.76vw;
+  }
+
+  @media screen and (min-width: 501px) /* Desktop and Tablet */ {
+    stroke-width: 0.42vw;
+  }
 }
 
 .track-actual-setting {
@@ -130,7 +192,13 @@ body {
 
 .track-overlay {
   pointer-events: stroke;
-  stroke-width: 2.6vw;
+  @media screen and (max-width: 500px) /* Mobile */ {
+    stroke-width: 8.3vw;
+  }
+
+  @media screen and (min-width: 501px) /* Desktop and Tablet */ {
+    stroke-width: 2.6vw;
+  }
   cursor: crosshair;
 }
 
@@ -164,5 +232,6 @@ body {
 
 .total-label-text {
   @extend .slider-label;
+  @include rotating-label;
   font-weight: 800;
 }

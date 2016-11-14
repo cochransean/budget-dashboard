@@ -1,3 +1,5 @@
+/* Responsive MixIns */
+/* Rotating itself is done in Javascript for IE compatibility */
 /* Overall Styles */
 body {
   background-color: #f0f0f0; }
@@ -12,8 +14,13 @@ body {
   margin-bottom: 0.5vmax; }
 
 /* Bar Chart Styles */
-#bar-chart {
-  height: 70%; }
+@media screen and (max-width: 500px) {
+  #bar-chart {
+    height: 50%; } }
+
+@media screen and (min-width: 501px) {
+  #bar-chart {
+    height: 70%; } }
 
 .bar-value, .swatch-value {
   fill: #ff7f00;
@@ -27,23 +34,51 @@ body {
   fill: #f0f0f0; }
 
 .axis {
-  font-weight: 500;
-  font-size: 0.83vmax; }
+  font-weight: 500; }
+  @media screen and (max-width: 500px) {
+    .axis {
+      font-size: 1.8vmax; } }
+  @media screen and (min-width: 501px) {
+    .axis {
+      font-size: 0.83vmax; } }
+
+@media screen and (max-width: 500px) {
+  .x-axis {
+    text-anchor: start; } }
+
+@media screen and (min-width: 501px) {
+  .x-axis {
+    text-anchor: middle; } }
 
 .axis-label {
-  font-size: 0.88vmax;
+  text-anchor: middle;
   font-weight: bold;
-  fill: black;
-  text-anchor: middle; }
+  fill: black; }
+  @media screen and (max-width: 500px) {
+    .axis-label {
+      font-size: 2vmax; } }
+  @media screen and (min-width: 501px) {
+    .axis-label {
+      font-size: 0.88vmax; } }
 
 #bar-chart-legend {
-  height: 100%;
-  font-size: 0.83vmax; }
+  height: 100%; }
+  @media screen and (max-width: 500px) {
+    #bar-chart-legend {
+      font-size: 1.8vmax; } }
+  @media screen and (min-width: 501px) {
+    #bar-chart-legend {
+      font-size: 0.83vmax; } }
 
 /* Overall Control and Legend Styles */
 #control-row {
-  margin: 0;
-  height: 22%; }
+  margin: 0; }
+  @media screen and (max-width: 500px) {
+    #control-row {
+      height: 42%; } }
+  @media screen and (min-width: 501px) {
+    #control-row {
+      height: 22%; } }
 
 #mixer {
   height: 100%;
@@ -55,15 +90,32 @@ body {
   stroke-dasharray: 5, 5; }
 
 /* Slider Styles */
-.slider-label, .total-label-text {
-  font-size: 0.83vmax;
-  text-anchor: middle; }
+@media screen and (max-width: 500px) {
+  .slider-label, .total-label-text {
+    font-size: 1.8vmax; } }
+
+@media screen and (min-width: 501px) {
+  .slider-label, .total-label-text {
+    font-size: 0.83vmax; } }
+
+@media screen and (max-width: 500px) {
+  .slider-label, .total-label-text {
+    text-anchor: start; } }
+
+@media screen and (min-width: 501px) {
+  .slider-label, .total-label-text {
+    text-anchor: middle; } }
 
 .slider-guide-text, .slider-percentage {
-  font-size: 0.83vmax;
   alignment-baseline: middle;
   baseline-shift: -5%;
   /* Fix the "not quite right" vertical alignment */ }
+  @media screen and (max-width: 500px) {
+    .slider-guide-text, .slider-percentage {
+      font-size: 1.8vmax; } }
+  @media screen and (min-width: 501px) {
+    .slider-guide-text, .slider-percentage {
+      font-size: 0.83vmax; } }
 
 .slider-guide-text {
   text-anchor: end; }
@@ -87,20 +139,35 @@ body {
 
 .track {
   stroke: #000;
-  stroke-opacity: 0.3;
-  stroke-width: 0.52vw; }
+  stroke-opacity: 0.3; }
+  @media screen and (max-width: 500px) {
+    .track {
+      stroke-width: 2.06vw; } }
+  @media screen and (min-width: 501px) {
+    .track {
+      stroke-width: 0.52vw; } }
 
 .track-inset, .track-actual-setting {
-  stroke: #d9d9d9;
-  stroke-width: 0.42vw; }
+  stroke: #d9d9d9; }
+  @media screen and (max-width: 500px) {
+    .track-inset, .track-actual-setting {
+      stroke-width: 1.76vw; } }
+  @media screen and (min-width: 501px) {
+    .track-inset, .track-actual-setting {
+      stroke-width: 0.42vw; } }
 
 .track-actual-setting {
   stroke: #737373; }
 
 .track-overlay {
   pointer-events: stroke;
-  stroke-width: 2.6vw;
   cursor: crosshair; }
+  @media screen and (max-width: 500px) {
+    .track-overlay {
+      stroke-width: 8.3vw; } }
+  @media screen and (min-width: 501px) {
+    .track-overlay {
+      stroke-width: 2.6vw; } }
 
 .handle {
   fill: #d9d9d9;
@@ -128,3 +195,9 @@ body {
 
 .total-label-text {
   font-weight: 800; }
+  @media screen and (max-width: 500px) {
+    .total-label-text {
+      text-anchor: start; } }
+  @media screen and (min-width: 501px) {
+    .total-label-text {
+      text-anchor: middle; } }
