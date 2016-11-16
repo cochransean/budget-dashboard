@@ -53,7 +53,7 @@ class BarChartLegend {
                 })
                 .attr('y', function() {
                     if (viewWidth > mobile) {
-                        return swatchWidth / 1.6 + index * swatchWidth * 2
+                        return swatchWidth / 2 + index * swatchWidth * 2
                     }
                     else {
                         return swatchWidth / 2

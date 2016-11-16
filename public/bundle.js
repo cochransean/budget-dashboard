@@ -1180,7 +1180,7 @@
 	                    return swatchWidth * 1.2;
 	                }).attr('y', function () {
 	                    if (_index.viewWidth > _index.mobile) {
-	                        return swatchWidth / 1.6 + index * swatchWidth * 2;
+	                        return swatchWidth / 2 + index * swatchWidth * 2;
 	                    } else {
 	                        return swatchWidth / 2;
 	                    }
