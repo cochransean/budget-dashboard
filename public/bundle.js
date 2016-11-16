@@ -1169,15 +1169,15 @@
 	            swatchWidth = swatchWidth < vis.width ? swatchWidth : vis.width;
 
 	            ['swatch-value', 'swatch-consensus'].forEach(function (cssClass, index) {
-	                legendGroup.append('rect').attr('x', 0).attr('y', function () {
-	                    return index * swatchWidth * 2;
-	                }).attr('width', swatchWidth).attr('height', swatchWidth).attr('class', cssClass);
+	                legendGroup.append('rect').attr('x', function () {
+	                    return vis.width / 2 * index;
+	                }).attr('y', 0).attr('width', swatchWidth).attr('height', swatchWidth).attr('class', cssClass);
 	            });
 
 	            // Add legend labels
 	            ['Actual Programmed', 'Expert Consensus'].forEach(function (text, index) {
 	                legendGroup.append('text').attr('x', function () {
-	                    return swatchWidth * 1.2;
+	                    return swatchWidth * 1.2 + vis.width / 2 * index;
 	                }).attr('y', function () {
 	                    if (_index.viewWidth > _index.mobile) {
 	                        return swatchWidth / 2 + index * swatchWidth * 2;

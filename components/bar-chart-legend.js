@@ -38,8 +38,8 @@ class BarChartLegend {
 
         ['swatch-value', 'swatch-consensus'].forEach(function(cssClass, index) {
             legendGroup.append('rect')
-                .attr('x', 0)
-                .attr('y', () => index * swatchWidth * 2 )
+                .attr('x', () => vis.width / 2 * index)
+                .attr('y', 0)
                 .attr('width', swatchWidth)
                 .attr('height', swatchWidth)
                 .attr('class', cssClass);
@@ -48,9 +48,7 @@ class BarChartLegend {
         // Add legend labels
         ['Actual Programmed', 'Expert Consensus'].forEach(function(text, index) {
             legendGroup.append('text')
-                .attr('x', function() {
-                    return swatchWidth * 1.2
-                })
+                .attr('x', () => swatchWidth * 1.2 + vis.width / 2 * index)
                 .attr('y', function() {
                     if (viewWidth > mobile) {
                         return swatchWidth / 2 + index * swatchWidth * 2
