@@ -11,14 +11,18 @@
     <body>
         <div class="vis-container container-fluid">
             <div id="dashboard-heading" class="text-center">Future Force Dashboard</div>
+            <!-- Div for the Legend on mobile phones -->
+            <div class="row hidden-sm hidden-md hidden-lg" id="bar-chart-legend-xs">
+                <div class="col-xs-12"></div>
+            </div>
             <div id="bar-chart"></div>
             <div id="mixing-board"></div>
             <div id="control-row" class="row">
-                <div class="hidden-xs col-md-1"></div>
-                <div class="col-xs-10 col-md-6" id="mixer"></div>
-                <div class="hidden-xs col-md-1"></div>
-                <div class="col-xs-2 col-md-3" id="bar-chart-legend"></div>
-                <div class="hidden-xs col-md-1"></div>
+                <div class="hidden-xs col-sm-1"></div>
+                <div class="col-xs-12 col-sm-6" id="mixer"></div>
+                <div class="hidden-xs col-sm-1"></div>
+                <div class="hidden-xs col-sm-3" id="bar-chart-legend"></div>
+                <div class="hidden-xs col-sm-1"></div>
             </div>
         </div>
 

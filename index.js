@@ -7,7 +7,7 @@ import BarChartLegend from './components/bar-chart-legend.js';
 import Mixer from './components/mixer.js';
 
 // Breakpoints
-const mobile = 500;
+const mobile = 768;
 
 
 // Get viewport sizing
@@ -22,15 +22,26 @@ queue()
     .defer(json, 'data/expert_consensus_mutant.json')
     .await(function(error, portfolios, consensusA, consensusB, consensusC) {
         if (error) throw error;
+
+        // Format and prepare the data
         let consensus =  {
             "Alien Invasion": consensusA,
             "Zombie Apocalypse": consensusB,
             "Mutant Super-Villain": consensusC
         };
         prepData(portfolios, consensus);
+
+        // Create the visualizations
         let barChart = new BarChart('bar-chart', portfolios, consensus);
-        let barChartLegend = new BarChartLegend('bar-chart-legend');
         let mixer = new Mixer('mixer');
+        if (viewWidth > mobile) {
+            let barChartLegend = new BarChartLegend('bar-chart-legend');
+        }
+
+        // Make more optimal use of space on mobile devices
+        else {
+            let barChartLegend = new BarChartLegend('bar-chart-legend-xs');
+        }
     });
 
 function prepData(portfolios, consensus) {

@@ -1,4 +1,5 @@
 import * as d3 from "d3";
+import { viewWidth, viewHeight, mobile } from '../index.js';
 
 class BarChartLegend {
 
@@ -32,7 +33,7 @@ class BarChartLegend {
 
         // Add legend
         let legendGroup = vis.svg.append('g');
-        let swatchWidth = vis.height / 3;
+        let swatchWidth = viewWidth > mobile ? vis.height / 3: vis.height;
         swatchWidth = swatchWidth < vis.width ? swatchWidth: vis.width;
 
         ['swatch-value', 'swatch-consensus'].forEach(function(cssClass, index) {
@@ -48,22 +49,17 @@ class BarChartLegend {
         ['Actual Programmed', 'Expert Consensus'].forEach(function(text, index) {
             legendGroup.append('text')
                 .attr('x', function() {
-                    if (vis.width >= vis.height) {
-                        return swatchWidth * 1.2
-                    }
-                    else {
-                        return 0
-                    }
+                    return swatchWidth * 1.2
                 })
                 .attr('y', function() {
-                    if (vis.width >= vis.height) {
+                    if (viewWidth > mobile) {
                         return swatchWidth / 1.6 + index * swatchWidth * 2
                     }
                     else {
-                        const verticalPadding = 12;
-                        return ((index * 2 + 1) * swatchWidth) + verticalPadding;
+                        return swatchWidth / 2
                     }
                 })
+                .attr('class', 'swatch-label')
                 .text(text);
         });
     }

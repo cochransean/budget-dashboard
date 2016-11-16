@@ -64,9 +64,9 @@
 
 	var _barChart2 = _interopRequireDefault(_barChart);
 
-	var _barChartLegend = __webpack_require__(4);
+	var _barChartLegend2 = __webpack_require__(4);
 
-	var _barChartLegend2 = _interopRequireDefault(_barChartLegend);
+	var _barChartLegend3 = _interopRequireDefault(_barChartLegend2);
 
 	var _mixer = __webpack_require__(5);
 
@@ -80,7 +80,7 @@
 
 
 	// Breakpoints
-	var mobile = 500;
+	var mobile = 768;
 
 	// Get viewport sizing
 	var viewWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
@@ -89,15 +89,26 @@
 	// load data
 	(0, _d.queue)().defer(_d.json, 'data/portfolios.json').defer(_d.json, 'data/expert_consensus_alien.json').defer(_d.json, 'data/expert_consensus_zombie.json').defer(_d.json, 'data/expert_consensus_mutant.json').await(function (error, portfolios, consensusA, consensusB, consensusC) {
 	    if (error) throw error;
+
+	    // Format and prepare the data
 	    var consensus = {
 	        "Alien Invasion": consensusA,
 	        "Zombie Apocalypse": consensusB,
 	        "Mutant Super-Villain": consensusC
 	    };
 	    prepData(portfolios, consensus);
+
+	    // Create the visualizations
 	    var barChart = new _barChart2.default('bar-chart', portfolios, consensus);
-	    var barChartLegend = new _barChartLegend2.default('bar-chart-legend');
 	    var mixer = new _mixer2.default('mixer');
+	    if (viewWidth > mobile) {
+	        var barChartLegend = new _barChartLegend3.default('bar-chart-legend');
+	    }
+
+	    // Make more optimal use of space on mobile devices
+	    else {
+	            var _barChartLegend = new _barChartLegend3.default('bar-chart-legend-xs');
+	        }
 	});
 
 	function prepData(portfolios, consensus) {
@@ -1105,7 +1116,7 @@
 /* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
@@ -1116,6 +1127,8 @@
 	var _d = __webpack_require__(2);
 
 	var d3 = _interopRequireWildcard(_d);
+
+	var _index = __webpack_require__(1);
 
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -1131,7 +1144,7 @@
 	    }
 
 	    _createClass(BarChartLegend, [{
-	        key: "initVis",
+	        key: 'initVis',
 	        value: function initVis() {
 	            var vis = this;
 
@@ -1152,7 +1165,7 @@
 
 	            // Add legend
 	            var legendGroup = vis.svg.append('g');
-	            var swatchWidth = vis.height / 3;
+	            var swatchWidth = _index.viewWidth > _index.mobile ? vis.height / 3 : vis.height;
 	            swatchWidth = swatchWidth < vis.width ? swatchWidth : vis.width;
 
 	            ['swatch-value', 'swatch-consensus'].forEach(function (cssClass, index) {
@@ -1164,19 +1177,14 @@
 	            // Add legend labels
 	            ['Actual Programmed', 'Expert Consensus'].forEach(function (text, index) {
 	                legendGroup.append('text').attr('x', function () {
-	                    if (vis.width >= vis.height) {
-	                        return swatchWidth * 1.2;
-	                    } else {
-	                        return 0;
-	                    }
+	                    return swatchWidth * 1.2;
 	                }).attr('y', function () {
-	                    if (vis.width >= vis.height) {
+	                    if (_index.viewWidth > _index.mobile) {
 	                        return swatchWidth / 1.6 + index * swatchWidth * 2;
 	                    } else {
-	                        var verticalPadding = 12;
-	                        return (index * 2 + 1) * swatchWidth + verticalPadding;
+	                        return swatchWidth / 2;
 	                    }
-	                }).text(text);
+	                }).attr('class', 'swatch-label').text(text);
 	            });
 	        }
 	    }]);

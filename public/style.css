@@ -1,5 +1,35 @@
+/* Breakpoints */
 /* Responsive MixIns */
+@media screen and (max-width: 768px) {
+  .axis, .swatch-label, .slider-label, .total-label-text, .slider-guide-text, .slider-percentage {
+    font-size: 1.8vmax; } }
+
+@media screen and (min-width: 769px) {
+  .axis, .swatch-label, .slider-label, .total-label-text, .slider-guide-text, .slider-percentage {
+    font-size: 0.83vmax; } }
+
+@media screen and (max-width: 768px) {
+  .axis-label {
+    font-size: 2vmax; } }
+
+@media screen and (min-width: 769px) {
+  .axis-label {
+    font-size: 0.88vmax; } }
+
 /* Rotating itself is done in Javascript for IE compatibility */
+@media screen and (max-width: 768px) {
+  .x-axis, .slider-label, .total-label-text {
+    text-anchor: start; } }
+
+@media screen and (min-width: 769px) {
+  .x-axis, .slider-label, .total-label-text {
+    text-anchor: middle; } }
+
+.swatch-label, .slider-guide-text, .slider-percentage {
+  alignment-baseline: middle;
+  baseline-shift: -5%;
+  /* Fix the "not quite right" vertical alignment */ }
+
 /* Overall Styles */
 body {
   background-color: #f0f0f0; }
@@ -14,11 +44,11 @@ body {
   margin-bottom: 0.5vmax; }
 
 /* Bar Chart Styles */
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 768px) {
   #bar-chart {
     height: 50%; } }
 
-@media screen and (min-width: 501px) {
+@media screen and (min-width: 769px) {
   #bar-chart {
     height: 70%; } }
 
@@ -35,48 +65,25 @@ body {
 
 .axis {
   font-weight: 500; }
-  @media screen and (max-width: 500px) {
-    .axis {
-      font-size: 1.8vmax; } }
-  @media screen and (min-width: 501px) {
-    .axis {
-      font-size: 0.83vmax; } }
-
-@media screen and (max-width: 500px) {
-  .x-axis {
-    text-anchor: start; } }
-
-@media screen and (min-width: 501px) {
-  .x-axis {
-    text-anchor: middle; } }
 
 .axis-label {
   text-anchor: middle;
   font-weight: bold;
   fill: black; }
-  @media screen and (max-width: 500px) {
-    .axis-label {
-      font-size: 2vmax; } }
-  @media screen and (min-width: 501px) {
-    .axis-label {
-      font-size: 0.88vmax; } }
 
 #bar-chart-legend {
   height: 100%; }
-  @media screen and (max-width: 500px) {
-    #bar-chart-legend {
-      font-size: 1.8vmax; } }
-  @media screen and (min-width: 501px) {
-    #bar-chart-legend {
-      font-size: 0.83vmax; } }
+
+#bar-chart-legend-xs {
+  height: 2.5%; }
 
 /* Overall Control and Legend Styles */
 #control-row {
   margin: 0; }
-  @media screen and (max-width: 500px) {
+  @media screen and (max-width: 768px) {
     #control-row {
       height: 42%; } }
-  @media screen and (min-width: 501px) {
+  @media screen and (min-width: 769px) {
     #control-row {
       height: 22%; } }
 
@@ -90,33 +97,6 @@ body {
   stroke-dasharray: 5, 5; }
 
 /* Slider Styles */
-@media screen and (max-width: 500px) {
-  .slider-label, .total-label-text {
-    font-size: 1.8vmax; } }
-
-@media screen and (min-width: 501px) {
-  .slider-label, .total-label-text {
-    font-size: 0.83vmax; } }
-
-@media screen and (max-width: 500px) {
-  .slider-label, .total-label-text {
-    text-anchor: start; } }
-
-@media screen and (min-width: 501px) {
-  .slider-label, .total-label-text {
-    text-anchor: middle; } }
-
-.slider-guide-text, .slider-percentage {
-  alignment-baseline: middle;
-  baseline-shift: -5%;
-  /* Fix the "not quite right" vertical alignment */ }
-  @media screen and (max-width: 500px) {
-    .slider-guide-text, .slider-percentage {
-      font-size: 1.8vmax; } }
-  @media screen and (min-width: 501px) {
-    .slider-guide-text, .slider-percentage {
-      font-size: 0.83vmax; } }
-
 .slider-guide-text {
   text-anchor: end; }
 
@@ -140,19 +120,19 @@ body {
 .track {
   stroke: #000;
   stroke-opacity: 0.3; }
-  @media screen and (max-width: 500px) {
+  @media screen and (max-width: 768px) {
     .track {
       stroke-width: 2.06vw; } }
-  @media screen and (min-width: 501px) {
+  @media screen and (min-width: 769px) {
     .track {
       stroke-width: 0.52vw; } }
 
 .track-inset, .track-actual-setting {
   stroke: #d9d9d9; }
-  @media screen and (max-width: 500px) {
+  @media screen and (max-width: 768px) {
     .track-inset, .track-actual-setting {
       stroke-width: 1.76vw; } }
-  @media screen and (min-width: 501px) {
+  @media screen and (min-width: 769px) {
     .track-inset, .track-actual-setting {
       stroke-width: 0.42vw; } }
 
@@ -162,10 +142,10 @@ body {
 .track-overlay {
   pointer-events: stroke;
   cursor: crosshair; }
-  @media screen and (max-width: 500px) {
+  @media screen and (max-width: 768px) {
     .track-overlay {
       stroke-width: 8.3vw; } }
-  @media screen and (min-width: 501px) {
+  @media screen and (min-width: 769px) {
     .track-overlay {
       stroke-width: 2.6vw; } }
 
@@ -195,9 +175,3 @@ body {
 
 .total-label-text {
   font-weight: 800; }
-  @media screen and (max-width: 500px) {
-    .total-label-text {
-      text-anchor: start; } }
-  @media screen and (min-width: 501px) {
-    .total-label-text {
-      text-anchor: middle; } }
