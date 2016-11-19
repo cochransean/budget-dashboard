@@ -80,7 +80,7 @@
 
 
 	// Breakpoints
-	var mobile = 768;
+	var mobile = 767;
 
 	// Get viewport sizing
 	var viewWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
@@ -940,34 +940,64 @@
 	                return d.name;
 	            });
 
-	            // Determine if highest value is in portfolios or consensus to setup axes
-	            var maxPortfolio = vis.portfolioSelected === null ? d3.max(vis.portfolios, function (d) {
-	                return d.value;
-	            }) : d3.max(vis.filteredPortfolios, function (d) {
-	                return d.value;
-	            });
-	            var maxConsensus = vis.portfolioSelected === null ? d3.max(vis.weightedConsensus, function (d) {
-	                return d.value;
-	            }) : d3.max(vis.filteredConsensus, function (d) {
-	                return d.value;
-	            });
+	            // Variables to setting up axes
+	            var maxPortfolio = void 0,
+	                maxConsensus = void 0,
+	                names = void 0,
+	                indexLookup = void 0;
+
+	            // If a portfolio is not currently selected
+	            if (vis.portfolioSelected === null) {
+
+	                // Determine max for each y-axis category
+	                maxPortfolio = d3.max(vis.portfolios, function (d) {
+	                    return d.value;
+	                });
+	                maxConsensus = d3.max(vis.weightedConsensus, function (d) {
+	                    return d.value;
+	                });
+
+	                // Get names for x-axis
+	                names = vis.portfolios.map(function (value) {
+	                    return value.name;
+	                });
+
+	                // Use the portfolio name to lookup data
+	                indexLookup = 'portfolio';
+	            }
+
+	            // Otherwise, the user must be zoomed in on a particular portfolio
+	            else {
+
+	                    // Determine max for each y-axis category
+	                    maxPortfolio = d3.max(vis.filteredPortfolios, function (d) {
+	                        return d.value;
+	                    });
+	                    maxConsensus = d3.max(vis.filteredConsensus, function (d) {
+	                        return d.value;
+	                    });
+
+	                    // Get names for x-axis
+	                    names = vis.filteredPortfolios.map(function (value) {
+	                        return value.name;
+	                    });
+
+	                    // Use capability name to lookup data
+	                    indexLookup = 'name';
+	                }
+
+	            // Determine if highest value is in portfolios or consensus
 	            var maxYValue = d3.max([maxPortfolio, maxConsensus]);
 
 	            // Update y-axis
 	            vis.y.domain([maxYValue, 0]);
 
 	            // Update x-axis
-	            var names = vis.portfolioSelected === null ? vis.portfolios.map(function (value) {
-	                return value.name;
-	            }) : vis.filteredPortfolios.map(function (value) {
-	                return value.name;
-	            });
 	            vis.x0.domain(names);
 
 	            // Cumulatively track position for building bars
 	            var cumulativeActual = {};
 	            var cumulativeConsensus = {};
-	            var indexLookup = vis.portfolioSelected === null ? 'portfolio' : 'name';
 
 	            // Track current Y position for each bar
 	            names.forEach(function (name) {
@@ -1165,27 +1195,44 @@
 
 	            // Add legend
 	            var legendGroup = vis.svg.append('g');
-	            var swatchWidth = _index.viewWidth > _index.mobile ? vis.height / 3 : vis.height;
-	            swatchWidth = swatchWidth < vis.width ? swatchWidth : vis.width;
 
-	            ['swatch-value', 'swatch-consensus'].forEach(function (cssClass, index) {
-	                legendGroup.append('rect').attr('x', function () {
-	                    return vis.width / 2 * index;
-	                }).attr('y', 0).attr('width', swatchWidth).attr('height', swatchWidth).attr('class', cssClass);
-	            });
+	            // Responsively add visualization
+	            var swatchWidth = void 0;
+	            if (_index.viewWidth > _index.mobile) {
+	                swatchWidth = vis.height / 3;
 
-	            // Add legend labels
-	            ['Actual Programmed', 'Expert Consensus'].forEach(function (text, index) {
-	                legendGroup.append('text').attr('x', function () {
-	                    return swatchWidth * 1.2 + vis.width / 2 * index;
-	                }).attr('y', function () {
-	                    if (_index.viewWidth > _index.mobile) {
+	                // Add swatches themselves
+	                ['swatch-value', 'swatch-consensus'].forEach(function (cssClass, index) {
+	                    legendGroup.append('rect').attr('x', 0).attr('y', index * swatchWidth * 2).attr('width', swatchWidth).attr('height', swatchWidth).attr('class', cssClass);
+	                });
+
+	                // Add legend labels
+	                ['Actual Programmed', 'Expert Consensus'].forEach(function (text, index) {
+	                    legendGroup.append('text').attr('x', function () {
+	                        return swatchWidth * 1.2;
+	                    }).attr('y', function () {
 	                        return swatchWidth / 2 + index * swatchWidth * 2;
-	                    } else {
+	                    }).attr('class', 'swatch-label').text(text);
+	                });
+	            } else {
+	                swatchWidth = vis.height;
+
+	                // Add swatches themselves
+	                ['swatch-value', 'swatch-consensus'].forEach(function (cssClass, index) {
+	                    legendGroup.append('rect').attr('x', function () {
+	                        return vis.width / 2 * index;
+	                    }).attr('y', 0).attr('width', swatchWidth).attr('height', swatchWidth).attr('class', cssClass);
+	                });
+
+	                // Add legend labels
+	                ['Actual Programmed', 'Expert Consensus'].forEach(function (text, index) {
+	                    legendGroup.append('text').attr('x', function () {
+	                        return swatchWidth * 1.2 + vis.width / 2 * index;
+	                    }).attr('y', function () {
 	                        return swatchWidth / 2;
-	                    }
-	                }).attr('class', 'swatch-label').text(text);
-	            });
+	                    }).attr('class', 'swatch-label').text(text);
+	                });
+	            }
 	        }
 	    }]);
 
@@ -1246,13 +1293,23 @@
 	            var chartDiv = d3.select(vis.parentDivID);
 	            var chartDivRect = chartDiv.node().getBoundingClientRect();
 
-	            // TODO get rid of all the ternarys here and elsewhere; do check once for sections like this
-	            vis.margin = {
-	                top: _index.viewWidth > _index.mobile ? chartDivRect.height * 0.25 : chartDivRect.height * 0.1,
-	                right: chartDivRect.width * 0.2,
-	                bottom: _index.viewWidth > _index.mobile ? chartDivRect.height * 0.2 : chartDivRect.height * 0.4,
-	                left: _index.viewWidth > _index.mobile ? 0 : chartDivRect.width * 0.05
-	            };
+	            // Responsively setup margins
+	            if (_index.viewWidth > _index.mobile) {
+	                vis.margin = {
+	                    top: chartDivRect.height * 0.25,
+	                    right: chartDivRect.width * 0.2,
+	                    bottom: chartDivRect.height * 0.2,
+	                    left: 0
+	                };
+	            } else {
+	                vis.margin = {
+	                    top: chartDivRect.height * 0.1,
+	                    right: chartDivRect.width * 0.2,
+	                    bottom: chartDivRect.height * 0.4,
+	                    left: chartDivRect.width * 0.05
+	                };
+	            }
+
 	            vis.width = chartDivRect.width - vis.margin.left - vis.margin.right;
 	            vis.height = chartDivRect.height - vis.margin.top - vis.margin.bottom;
 
@@ -1271,11 +1328,13 @@
 	                return this.parentNode.appendChild(this.cloneNode(true));
 	            }).attr("y1", vis.height).attr("y2", vis.height);
 
+	            // This needs to be done here (and not with margins above) because the x-axis doesn't exist until
+	            // the margins have been created, necessitating the additional conditional check.
 	            var sliderTextPadding = _index.viewWidth > _index.mobile ? vis.x.bandwidth() * 0.05 : vis.x.bandwidth() * 0.12;
 
-	            vis.svg.append("text").attr("class", "slider-guide-text").attr("x", vis.x(vis.sliderLabels[0]) - sliderTextPadding + vis.x.bandwidth() / 2).text("100%").select(function () {
+	            var labelDimensions = vis.svg.append("text").attr("y", vis.height).attr("x", vis.x(vis.sliderLabels[0]) - sliderTextPadding + vis.x.bandwidth() / 2).text("0%").attr("class", "slider-guide-text").select(function () {
 	                return this.parentNode.appendChild(this.cloneNode(true));
-	            }).attr("y", vis.height).text("0%");
+	            }).attr("y", 0).text("100%").node().getBBox(); // Get width for displaying outline rectangle on handle labels
 
 	            // Add sliders
 	            vis.sliderLabels.forEach(function (label, index) {
@@ -1304,27 +1363,27 @@
 	                    actualSetting.transition().duration(800).attr("y1", vis.y(_state2.default.getSlider(label))).attr("y2", vis.height);
 	                });
 
+	                var radius = void 0;
+	                if (_index.viewWidth > _index.mobile) {
+	                    radius = 0.013 * vis.width;
+	                } else {
+	                    radius = 0.03 * vis.width;
+	                }
 	                slider.append("text").attr("class", "slider-label").attr("transform", function () {
 	                    if (_index.viewWidth > _index.mobile) {
-	                        return "translate(0," + vis.height * 1.3 + ")";
+	                        return "translate(0," + (vis.height + radius * 2.7) + ")";
 	                    } else {
-	                        return "translate(0," + vis.height * 1.15 + "), rotate(45)";
+	                        return "translate(0," + (vis.height + radius * 1.7) + "), rotate(45)";
 	                    }
 	                }).text(label);
 
-	                var handle = slider.insert("circle", ".track-overlay").attr("class", "handle").attr("r", function () {
-	                    if (_index.viewWidth > _index.mobile) {
-	                        return 0.013 * vis.width;
-	                    } else {
-	                        return 0.03 * vis.width;
-	                    }
-	                }).attr("cy", vis.y(_state2.default.getSlider(label)));
+	                var handle = slider.insert("circle", ".track-overlay").attr("class", "handle").attr("r", radius).attr("cy", vis.y(_state2.default.getSlider(label)));
 
 	                var handleLabel = slider.insert("g", ".track-overlay").attr("transform", "translate(" + sliderTextPadding + "," + vis.y(_state2.default.getSlider(label)) + ")");
 
-	                var handleLabelHeight = _index.viewWidth > _index.mobile ? vis.height * 0.25 : vis.height * 0.14;
-	                var handleLabelWidth = _index.viewWidth > _index.mobile ? vis.x.bandwidth() * 0.2 : vis.x.bandwidth() * 0.45;
-	                handleLabel.append("rect").attr("height", handleLabelHeight).attr("width", handleLabelWidth).attr("y", -(handleLabelHeight / 2)).attr("class", "handle-label");
+	                // Setup handles responsively
+	                handleLabel.append("rect").attr("height", labelDimensions.height * 1.1) // Use pre-determined width and height from y-axis label
+	                .attr("width", labelDimensions.width * 1.1).attr("y", -(labelDimensions.height * 1.1 / 2)).attr("class", "handle-label");
 
 	                var handleTextPadding = vis.x.bandwidth() * 0.01;
 	                var handleText = handleLabel.append("text").attr("class", "slider-percentage").attr("x", handleTextPadding).text(function () {

@@ -138,25 +138,49 @@ class BarChart {
                 return d.name;
             });
 
-        // Determine if highest value is in portfolios or consensus to setup axes
-        let maxPortfolio = vis.portfolioSelected === null ? d3.max(vis.portfolios, d => d.value):
-            d3.max(vis.filteredPortfolios, d => d.value);
-        let maxConsensus = vis.portfolioSelected === null ? d3.max(vis.weightedConsensus, d => d.value):
-            d3.max(vis.filteredConsensus, d => d.value);
+        // Variables to setting up axes
+        let maxPortfolio, maxConsensus, names, indexLookup;
+
+        // If a portfolio is not currently selected
+        if (vis.portfolioSelected === null) {
+
+            // Determine max for each y-axis category
+            maxPortfolio = d3.max(vis.portfolios, d => d.value);
+            maxConsensus = d3.max(vis.weightedConsensus, d => d.value);
+
+            // Get names for x-axis
+            names = vis.portfolios.map(value => value.name);
+
+            // Use the portfolio name to lookup data
+            indexLookup = 'portfolio';
+        }
+
+        // Otherwise, the user must be zoomed in on a particular portfolio
+        else {
+
+            // Determine max for each y-axis category
+            maxPortfolio = d3.max(vis.filteredPortfolios, d => d.value);
+            maxConsensus = d3.max(vis.filteredConsensus, d => d.value);
+
+            // Get names for x-axis
+            names = vis.filteredPortfolios.map(value => value.name);
+
+            // Use capability name to lookup data
+            indexLookup = 'name';
+        }
+
+        // Determine if highest value is in portfolios or consensus
         let maxYValue = d3.max([maxPortfolio, maxConsensus]);
 
         // Update y-axis
         vis.y.domain([maxYValue, 0]);
 
         // Update x-axis
-        let names = vis.portfolioSelected === null ? vis.portfolios.map(value => value.name) :
-            vis.filteredPortfolios.map(value => value.name);
         vis.x0.domain(names);
 
         // Cumulatively track position for building bars
         let cumulativeActual = {};
         let cumulativeConsensus = {};
-        let indexLookup = vis.portfolioSelected === null ? 'portfolio': 'name';
 
         // Track current Y position for each bar
         names.forEach(function(name) {

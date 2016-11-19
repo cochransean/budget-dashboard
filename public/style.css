@@ -1,27 +1,27 @@
 /* Breakpoints */
 /* Responsive MixIns */
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 767px) {
   .axis, .swatch-label, .slider-label, .total-label-text, .slider-guide-text, .slider-percentage {
     font-size: 1.8vmax; } }
 
-@media screen and (min-width: 769px) {
+@media screen and (min-width: 768px) {
   .axis, .swatch-label, .slider-label, .total-label-text, .slider-guide-text, .slider-percentage {
     font-size: 0.83vmax; } }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 767px) {
   .axis-label {
     font-size: 2vmax; } }
 
-@media screen and (min-width: 769px) {
+@media screen and (min-width: 768px) {
   .axis-label {
     font-size: 0.88vmax; } }
 
 /* Rotating itself is done in Javascript for IE compatibility */
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 767px) {
   .x-axis, .slider-label, .total-label-text {
     text-anchor: start; } }
 
-@media screen and (min-width: 769px) {
+@media screen and (min-width: 768px) {
   .x-axis, .slider-label, .total-label-text {
     text-anchor: middle; } }
 
@@ -39,16 +39,16 @@ body {
 
 /* Heading Styles */
 #dashboard-heading {
-  font-size: 2.5vmax;
-  height: 2.5vmax;
-  margin-bottom: 0.5vmax; }
+  font-size: 4.5vmin;
+  height: 3.5vh;
+  margin-bottom: 0.5vh; }
 
 /* Bar Chart Styles */
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 767px) {
   #bar-chart {
     height: 50%; } }
 
-@media screen and (min-width: 769px) {
+@media screen and (min-width: 768px) {
   #bar-chart {
     height: 70%; } }
 
@@ -80,16 +80,15 @@ body {
 /* Overall Control and Legend Styles */
 #control-row {
   margin: 0; }
-  @media screen and (max-width: 768px) {
+  @media screen and (max-width: 767px) {
     #control-row {
       height: 42%; } }
-  @media screen and (min-width: 769px) {
+  @media screen and (min-width: 768px) {
     #control-row {
       height: 22%; } }
 
 #mixer {
-  height: 100%;
-  border: black 0.16vw; }
+  height: 100%; }
 
 .slider-guide, .total-guide {
   stroke: black;
@@ -120,19 +119,19 @@ body {
 .track {
   stroke: #000;
   stroke-opacity: 0.3; }
-  @media screen and (max-width: 768px) {
+  @media screen and (max-width: 767px) {
     .track {
       stroke-width: 2.06vw; } }
-  @media screen and (min-width: 769px) {
+  @media screen and (min-width: 768px) {
     .track {
       stroke-width: 0.52vw; } }
 
 .track-inset, .track-actual-setting {
   stroke: #d9d9d9; }
-  @media screen and (max-width: 768px) {
+  @media screen and (max-width: 767px) {
     .track-inset, .track-actual-setting {
       stroke-width: 1.76vw; } }
-  @media screen and (min-width: 769px) {
+  @media screen and (min-width: 768px) {
     .track-inset, .track-actual-setting {
       stroke-width: 0.42vw; } }
 
@@ -142,10 +141,10 @@ body {
 .track-overlay {
   pointer-events: stroke;
   cursor: crosshair; }
-  @media screen and (max-width: 768px) {
+  @media screen and (max-width: 767px) {
     .track-overlay {
       stroke-width: 8.3vw; } }
-  @media screen and (min-width: 769px) {
+  @media screen and (min-width: 768px) {
     .track-overlay {
       stroke-width: 2.6vw; } }
 

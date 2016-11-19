@@ -20,13 +20,25 @@ class Mixer {
         let chartDiv = d3.select(vis.parentDivID);
         let chartDivRect = chartDiv.node().getBoundingClientRect();
 
-        // TODO get rid of all the ternarys here and elsewhere; do check once for sections like this
-        vis.margin = {
-            top: viewWidth > mobile ? chartDivRect.height * 0.25: chartDivRect.height * 0.1,
-            right: chartDivRect.width * 0.2,
-            bottom: viewWidth > mobile ? chartDivRect.height * 0.2: chartDivRect.height * 0.4,
-            left: viewWidth > mobile ? 0: chartDivRect.width * 0.05
-        };
+        // Responsively setup margins
+        if (viewWidth > mobile) {
+            vis.margin = {
+                top: chartDivRect.height * 0.25,
+                right: chartDivRect.width * 0.2,
+                bottom: chartDivRect.height * 0.2,
+                left: 0
+            };
+        }
+
+        else {
+            vis.margin = {
+                top: chartDivRect.height * 0.1,
+                right: chartDivRect.width * 0.2,
+                bottom: chartDivRect.height * 0.4,
+                left: chartDivRect.width * 0.05
+            };
+        }
+
         vis.width = chartDivRect.width - vis.margin.left - vis.margin.right;
         vis.height = chartDivRect.height - vis.margin.top - vis.margin.bottom;
 
@@ -63,16 +75,19 @@ class Mixer {
             .attr("y1", vis.height)
             .attr("y2", vis.height);
 
+        // This needs to be done here (and not with margins above) because the x-axis doesn't exist until
+        // the margins have been created, necessitating the additional conditional check.
         const sliderTextPadding = viewWidth > mobile ? vis.x.bandwidth() * 0.05: vis.x.bandwidth() * 0.12;
 
-        vis.svg.append("text")
-            .attr("class", "slider-guide-text")
-            .attr("x", vis.x(vis.sliderLabels[0]) - sliderTextPadding + vis.x.bandwidth() / 2)
-            .text("100%")
-            .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+        let labelDimensions = vis.svg.append("text")
             .attr("y", vis.height)
-            .text("0%");
-
+            .attr("x", vis.x(vis.sliderLabels[0]) - sliderTextPadding + vis.x.bandwidth() / 2)
+            .text("0%")
+            .attr("class", "slider-guide-text")
+            .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+            .attr("y", 0)
+            .text("100%")
+            .node().getBBox(); // Get width for displaying outline rectangle on handle labels
 
         // Add sliders
         vis.sliderLabels.forEach(function(label, index) {
@@ -115,39 +130,38 @@ class Mixer {
                         .attr("y2", vis.height);
                 });
 
+            let radius;
+            if (viewWidth > mobile) {
+                radius = 0.013 * vis.width
+            }
+            else {
+                radius = 0.03 * vis.width
+            }
             slider.append("text")
                 .attr("class", "slider-label")
                 .attr("transform", function() {
                     if (viewWidth > mobile) {
-                        return "translate(0," + vis.height * 1.3 + ")"
+                        return "translate(0," + (vis.height + radius * 2.7) + ")"
                     }
                     else {
-                        return "translate(0," + vis.height * 1.15 + "), rotate(45)"
+                        return "translate(0," + (vis.height + radius * 1.7) + "), rotate(45)"
                     }
                 })
                 .text(label);
 
             let handle = slider.insert("circle", ".track-overlay")
                 .attr("class", "handle")
-                .attr("r", function() {
-                    if (viewWidth > mobile) {
-                        return 0.013 * vis.width
-                    }
-                    else {
-                        return 0.03 * vis.width
-                    }
-                })
+                .attr("r", radius)
                 .attr("cy", vis.y(stateBank.getSlider(label)));
 
             let handleLabel = slider.insert("g", ".track-overlay")
                 .attr("transform", "translate(" + sliderTextPadding + "," + vis.y(stateBank.getSlider(label)) + ")");
 
-            const handleLabelHeight = viewWidth > mobile ? vis.height * 0.25: vis.height * 0.14;
-            const handleLabelWidth = viewWidth > mobile ? vis.x.bandwidth() * 0.2: vis.x.bandwidth() * 0.45;
+            // Setup handles responsively
             handleLabel.append("rect")
-                .attr("height", handleLabelHeight)
-                .attr("width", handleLabelWidth)
-                .attr("y", -(handleLabelHeight / 2))
+                .attr("height", labelDimensions.height * 1.1) // Use pre-determined width and height from y-axis label
+                .attr("width", labelDimensions.width * 1.1)
+                .attr("y", -(labelDimensions.height * 1.1 / 2))
                 .attr("class", "handle-label");
 
             const handleTextPadding = vis.x.bandwidth() * 0.01;

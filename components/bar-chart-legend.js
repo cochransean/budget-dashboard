@@ -33,33 +33,53 @@ class BarChartLegend {
 
         // Add legend
         let legendGroup = vis.svg.append('g');
-        let swatchWidth = viewWidth > mobile ? vis.height / 3: vis.height;
-        swatchWidth = swatchWidth < vis.width ? swatchWidth: vis.width;
 
-        ['swatch-value', 'swatch-consensus'].forEach(function(cssClass, index) {
-            legendGroup.append('rect')
-                .attr('x', () => vis.width / 2 * index)
-                .attr('y', 0)
-                .attr('width', swatchWidth)
-                .attr('height', swatchWidth)
-                .attr('class', cssClass);
-        });
+        // Responsively add visualization
+        let swatchWidth;
+        if (viewWidth > mobile) {
+            swatchWidth = vis.height / 3;
 
-        // Add legend labels
-        ['Actual Programmed', 'Expert Consensus'].forEach(function(text, index) {
-            legendGroup.append('text')
-                .attr('x', () => swatchWidth * 1.2 + vis.width / 2 * index)
-                .attr('y', function() {
-                    if (viewWidth > mobile) {
-                        return swatchWidth / 2 + index * swatchWidth * 2
-                    }
-                    else {
-                        return swatchWidth / 2
-                    }
-                })
-                .attr('class', 'swatch-label')
-                .text(text);
-        });
+            // Add swatches themselves
+            ['swatch-value', 'swatch-consensus'].forEach(function(cssClass, index) {
+                legendGroup.append('rect')
+                    .attr('x', 0)
+                    .attr('y', index * swatchWidth * 2)
+                    .attr('width', swatchWidth)
+                    .attr('height', swatchWidth)
+                    .attr('class', cssClass);
+            });
+
+            // Add legend labels
+            ['Actual Programmed', 'Expert Consensus'].forEach(function(text, index) {
+                legendGroup.append('text')
+                    .attr('x', () => swatchWidth * 1.2)
+                    .attr('y', () => swatchWidth / 2 + index * swatchWidth * 2)
+                    .attr('class', 'swatch-label')
+                    .text(text);
+            });
+        }
+        else {
+            swatchWidth = vis.height;
+
+            // Add swatches themselves
+            ['swatch-value', 'swatch-consensus'].forEach(function(cssClass, index) {
+                legendGroup.append('rect')
+                    .attr('x', () => vis.width / 2 * index)
+                    .attr('y', 0)
+                    .attr('width', swatchWidth)
+                    .attr('height', swatchWidth)
+                    .attr('class', cssClass);
+            });
+
+            // Add legend labels
+            ['Actual Programmed', 'Expert Consensus'].forEach(function(text, index) {
+                legendGroup.append('text')
+                    .attr('x', () => swatchWidth * 1.2 + vis.width / 2 * index)
+                    .attr('y', () => swatchWidth / 2)
+                    .attr('class', 'swatch-label')
+                    .text(text);
+            });
+        }
     }
 
 }

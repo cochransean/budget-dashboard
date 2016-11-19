@@ -8,7 +8,7 @@ $minor-border-width: 0.1vmax;
 $background-color: #f0f0f0;
 
 /* Breakpoints */
-$xs: 768px;
+$xs: 767px;
 
 /* Responsive MixIns */
 %minor-text {
@@ -58,9 +58,9 @@ body {
 
 /* Heading Styles */
 #dashboard-heading {
-  font-size: 2.5vmax;
-  height: 2.5vmax;
-  margin-bottom: 0.5vmax;
+  font-size: 4.5vmin;
+  height: 3.5vh;
+  margin-bottom: 0.5vh;
 }
 
 /* Bar Chart Styles */
@@ -131,7 +131,6 @@ body {
 
 #mixer {
   height: 100%;
-  border: black 0.16vw;
 }
 
 .slider-guide, .total-guide {
