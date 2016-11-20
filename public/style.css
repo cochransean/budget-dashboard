@@ -16,15 +16,6 @@
   .axis-label {
     font-size: 0.88vmax; } }
 
-/* Rotating itself is done in Javascript for IE compatibility */
-@media screen and (max-width: 767px) {
-  .x-axis, .slider-label, .total-label-text {
-    text-anchor: start; } }
-
-@media screen and (min-width: 768px) {
-  .x-axis, .slider-label, .total-label-text {
-    text-anchor: middle; } }
-
 .swatch-label, .slider-guide-text, .slider-percentage {
   alignment-baseline: middle;
   baseline-shift: -5%;

@@ -2,6 +2,7 @@ import * as d3 from "d3";
 import stateBank from './state.js';
 import dispatcher from './dispatch.js';
 import { viewWidth, viewHeight, mobile } from '../index.js';
+import { wrap } from '../js/helpers';
 
 // SVG drawing area
 class BarChart {
@@ -81,6 +82,7 @@ class BarChart {
                 }
             })
             .attr('class', 'axis-label');
+
         let yLabelOffset = viewWidth > mobile ? vis.width * -0.038: vis.width * -0.16;
         vis.svg.append('text')
             .attr("transform", "translate(" + yLabelOffset + "," + vis.height / 2 + ") rotate(90)")
@@ -254,18 +256,11 @@ class BarChart {
 
         // update axes
         vis.xAxisGroup
-            .transition()
-            .duration(800)
             .call(vis.xAxis)
             .selectAll('.x-axis text')
-            .attr('transform', function() {
-                if (viewWidth > mobile) {
-                    return "translate(0,0)"
-                }
-                else {
-                    return "rotate(45)"
-                }
-            });
+            .attr('y', function() {return this.getBoundingClientRect().height * 1.2 })
+            .call(wrap, vis.x0.bandwidth()); // Wrap text TODO implement a solution where words adapt based on surrounding word size (Experimentation should fit)
+        console.log(vis.x0.step());
         vis.yAxisGroup
             .transition()
             .duration(800)

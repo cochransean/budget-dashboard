@@ -2,6 +2,7 @@ import * as d3 from "d3";
 import stateBank from './state.js';
 import dispatcher from './dispatch.js';
 import { viewWidth, viewHeight, mobile } from '../index.js';
+import { wrap } from '../js/helpers';
 
 class Mixer {
 
@@ -34,7 +35,7 @@ class Mixer {
             vis.margin = {
                 top: chartDivRect.height * 0.1,
                 right: chartDivRect.width * 0.2,
-                bottom: chartDivRect.height * 0.4,
+                bottom: chartDivRect.height * 0.4, // TODO do a quick check to see if words won't fit and leave less space if you can
                 left: chartDivRect.width * 0.05
             };
         }
@@ -137,16 +138,10 @@ class Mixer {
             else {
                 radius = 0.03 * vis.width
             }
+
             slider.append("text")
                 .attr("class", "slider-label")
-                .attr("transform", function() {
-                    if (viewWidth > mobile) {
-                        return "translate(0," + (vis.height + radius * 2.7) + ")"
-                    }
-                    else {
-                        return "translate(0," + (vis.height + radius * 1.7) + "), rotate(45)"
-                    }
-                })
+                .attr("transform", () =>  "translate(0," + (vis.height + radius * 2.7) + ")")
                 .text(label);
 
             let handle = slider.insert("circle", ".track-overlay")
@@ -171,6 +166,9 @@ class Mixer {
                 .text(function() { return stateBank.getSlider(label) + "%" });
 
         });
+
+        vis.svg.selectAll(".slider-label")
+            .call(wrap, vis.x.bandwidth());
 
         // Add the total percentage widget
         // Different scale to show when user has selected over 100

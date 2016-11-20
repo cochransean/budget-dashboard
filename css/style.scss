@@ -31,17 +31,6 @@ $xs: 767px;
   }
 }
 
-/* Rotating itself is done in Javascript for IE compatibility */
-%rotating-label {
-  @media screen and (max-width: $xs) /* Mobile */ {
-    text-anchor: start;
-  }
-
-  @media screen and (min-width: $xs + 1) /* Desktop and Tablet */ {
-    text-anchor: middle;
-  }
-}
-
 %vertical-centered-text {
   alignment-baseline: middle;
   baseline-shift: -5%; /* Fix the "not quite right" vertical alignment */
@@ -93,10 +82,6 @@ body {
   font-weight: 500;
 }
 
-.x-axis {
-  @extend %rotating-label;
-}
-
 .axis-label {
   @extend %label-text;
   text-anchor: middle;
@@ -143,7 +128,6 @@ body {
 /* Slider Styles */
 .slider-label {
   @extend %minor-text;
-  @extend %rotating-label;
 }
 
 .slider-guide-text, .slider-percentage {
@@ -245,6 +229,5 @@ body {
 
 .total-label-text {
   @extend .slider-label;
-  @extend %rotating-label;
   font-weight: 800;
 }

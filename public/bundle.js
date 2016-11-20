@@ -812,6 +812,8 @@
 
 	var _index = __webpack_require__(1);
 
+	var _helpers = __webpack_require__(311);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
@@ -885,6 +887,7 @@
 	                    return vis.height * 1.4;
 	                }
 	            }).attr('class', 'axis-label');
+
 	            var yLabelOffset = _index.viewWidth > _index.mobile ? vis.width * -0.038 : vis.width * -0.16;
 	            vis.svg.append('text').attr("transform", "translate(" + yLabelOffset + "," + vis.height / 2 + ") rotate(90)").attr('class', 'axis-label').text('Value (Billions of Dollars)');
 
@@ -1050,13 +1053,10 @@
 	            }).attr('class', 'bar-consensus').style("opacity", 1);
 
 	            // update axes
-	            vis.xAxisGroup.transition().duration(800).call(vis.xAxis).selectAll('.x-axis text').attr('transform', function () {
-	                if (_index.viewWidth > _index.mobile) {
-	                    return "translate(0,0)";
-	                } else {
-	                    return "rotate(45)";
-	                }
-	            });
+	            vis.xAxisGroup.call(vis.xAxis).selectAll('.x-axis text').attr('y', function () {
+	                return this.getBoundingClientRect().height * 1.2;
+	            }).call(_helpers.wrap, vis.x0.bandwidth()); // Wrap text TODO implement a solution where words adapt based on surrounding word size (Experimentation should fit)
+	            console.log(vis.x0.step());
 	            vis.yAxisGroup.transition().duration(800).call(vis.yAxis);
 
 	            vis.xAxisText.text(function () {
@@ -1267,6 +1267,8 @@
 
 	var _index = __webpack_require__(1);
 
+	var _helpers = __webpack_require__(311);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
@@ -1305,7 +1307,7 @@
 	                vis.margin = {
 	                    top: chartDivRect.height * 0.1,
 	                    right: chartDivRect.width * 0.2,
-	                    bottom: chartDivRect.height * 0.4,
+	                    bottom: chartDivRect.height * 0.4, // TODO do a quick check to see if words won't fit and leave less space if you can
 	                    left: chartDivRect.width * 0.05
 	                };
 	            }
@@ -1369,12 +1371,9 @@
 	                } else {
 	                    radius = 0.03 * vis.width;
 	                }
+
 	                slider.append("text").attr("class", "slider-label").attr("transform", function () {
-	                    if (_index.viewWidth > _index.mobile) {
-	                        return "translate(0," + (vis.height + radius * 2.7) + ")";
-	                    } else {
-	                        return "translate(0," + (vis.height + radius * 1.7) + "), rotate(45)";
-	                    }
+	                    return "translate(0," + (vis.height + radius * 2.7) + ")";
 	                }).text(label);
 
 	                var handle = slider.insert("circle", ".track-overlay").attr("class", "handle").attr("r", radius).attr("cy", vis.y(_state2.default.getSlider(label)));
@@ -1390,6 +1389,8 @@
 	                    return _state2.default.getSlider(label) + "%";
 	                });
 	            });
+
+	            vis.svg.selectAll(".slider-label").call(_helpers.wrap, vis.x.bandwidth());
 
 	            // Add the total percentage widget
 	            // Different scale to show when user has selected over 100
@@ -10368,6 +10369,75 @@
 	var dispatcher = (0, _d.dispatch)('ratio-updated');
 
 	exports.default = dispatcher;
+
+/***/ },
+/* 311 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.wrap = undefined;
+
+	var _d = __webpack_require__(2);
+
+	var d3 = _interopRequireWildcard(_d);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+	// Wraps SVG text to the provided width, used from: https://bl.ocks.org/mbostock/7555321
+	function wrap(text, width) {
+	    console.log(text);
+	    var rotate = false; // for rotating text when even single word doesn't fit
+
+	    text.each(function () {
+	        var text = d3.select(this),
+	            words = text.text().split(/\s+/).reverse(),
+	            word = void 0,
+	            line = [],
+	            lineNumber = 0,
+	            lineHeight = 1.1,
+	            // ems
+	        y = text.attr("y") === null ? 0 : text.attr("y"),
+	            dy = 0,
+	            tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+	        while (word = words.pop()) {
+	            line.push(word);
+	            tspan.text(line.join(" "));
+	            if (tspan.node().getComputedTextLength() > width) {
+
+	                // If even one word doesn't fit, flag for rotation
+	                if (line.length === 1) {
+	                    rotate = true;
+	                    lineNumber--; // Prevent single long word from being moved to the next line
+	                }
+	                line.pop();
+	                tspan.text(line.join(" "));
+	                line = [word];
+	                tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+	            }
+	        }
+	    });
+	    if (rotate === true) {
+	        text.attr("text-anchor", "start");
+	        applyRotation(45);
+	    } else {
+	        text.attr("text-anchor", "middle");
+	    }
+
+	    function applyRotation(angle) {
+	        if (text.attr("transform") !== null) {
+	            console.log(text);
+	            text.attr("transform", text.attr("transform") + "rotate(" + angle + ")");
+	        } else {
+	            text.attr("transform", "rotate(" + angle + ")");
+	        }
+	    }
+	}
+
+	exports.wrap = wrap;
 
 /***/ }
 /******/ ]);
