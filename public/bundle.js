@@ -1053,10 +1053,9 @@
 	            }).attr('class', 'bar-consensus').style("opacity", 1);
 
 	            // update axes
-	            vis.xAxisGroup.call(vis.xAxis).selectAll('.x-axis text').attr('y', function () {
-	                return this.getBoundingClientRect().height * 1.2;
-	            }).call(_helpers.wrap, vis.x0.bandwidth()); // Wrap text TODO implement a solution where words adapt based on surrounding word size (Experimentation should fit)
-	            console.log(vis.x0.step());
+	            vis.xAxisGroup.call(vis.xAxis).selectAll('.x-axis text').attr("transform", function () {
+	                return "translate(0," + vis.height * 0.05 + ")";
+	            }).call(_helpers.wrapAxis, vis.x0.bandwidth()); // Wrap text TODO implement a solution where words adapt based on surrounding word size (Experimentation should fit)
 	            vis.yAxisGroup.transition().duration(800).call(vis.yAxis);
 
 	            vis.xAxisText.text(function () {
@@ -1390,7 +1389,7 @@
 	                });
 	            });
 
-	            vis.svg.selectAll(".slider-label").call(_helpers.wrap, vis.x.bandwidth());
+	            vis.svg.selectAll(".slider-label").call(_helpers.wrapAxis, vis.x.bandwidth());
 
 	            // Add the total percentage widget
 	            // Different scale to show when user has selected over 100
@@ -10379,7 +10378,7 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	exports.wrap = undefined;
+	exports.wrapAxis = undefined;
 
 	var _d = __webpack_require__(2);
 
@@ -10388,56 +10387,106 @@
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	// Wraps SVG text to the provided width, used from: https://bl.ocks.org/mbostock/7555321
-	function wrap(text, width) {
-	    console.log(text);
-	    var rotate = false; // for rotating text when even single word doesn't fit
+	// Since this uses rotation, text should be positioned on the page originally using translate instead of y, which
+	// would result in text rotating out of the intended position.
+	// Width refers to the width of each column.
+	function wrapAxis(text, width) {
+
+	    // Array to track unused space in each column, allowing adjacent columns to "spill over" when there is room
+	    var spaceAvailable = [];
+
+	    // Create array with discrete selections for each element to enable more precise flow control
+	    var elements = [];
 
 	    text.each(function () {
-	        var text = d3.select(this),
-	            words = text.text().split(/\s+/).reverse(),
-	            word = void 0,
-	            line = [],
-	            lineNumber = 0,
-	            lineHeight = 1.1,
-	            // ems
-	        y = text.attr("y") === null ? 0 : text.attr("y"),
-	            dy = 0,
-	            tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
-	        while (word = words.pop()) {
-	            line.push(word);
-	            tspan.text(line.join(" "));
-	            if (tspan.node().getComputedTextLength() > width) {
-
-	                // If even one word doesn't fit, flag for rotation
-	                if (line.length === 1) {
-	                    rotate = true;
-	                    lineNumber--; // Prevent single long word from being moved to the next line
-	                }
-	                line.pop();
-	                tspan.text(line.join(" "));
-	                line = [word];
-	                tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
-	            }
-	        }
+	        spaceAvailable.push(null);
+	        elements.push(d3.select(this));
 	    });
-	    if (rotate === true) {
-	        text.attr("text-anchor", "start");
-	        applyRotation(45);
-	    } else {
-	        text.attr("text-anchor", "middle");
+
+	    // Loop over each element, wrapping text and rotating to make room as required for each
+	    for (var i = 0; i < elements.length; i++) {
+
+	        spaceAvailable[i] = wrapText(elements[i], width + getAdjacentSpace(i));
+
+	        // If you created space this round and there wasn't any on the previous, try it again
+	        if (i > 0 && spaceAvailable[i] > 0 && spaceAvailable[i - 1] < 0) {
+	            wrapText(elements[i - 1], width + getAdjacentSpace(i - 1));
+	        }
 	    }
 
-	    function applyRotation(angle) {
-	        if (text.attr("transform") !== null) {
-	            console.log(text);
-	            text.attr("transform", text.attr("transform") + "rotate(" + angle + ")");
-	        } else {
-	            text.attr("transform", "rotate(" + angle + ")");
+	    //    if (rotate === true) {
+	    //        text.attr("text-anchor", "start");
+	    //        applyRotation(45);
+	    //    }
+	    //    else {
+	    //        text.attr("text-anchor", "middle");
+	    //    }
+
+	    // Gets the space available around a given element
+	    function getAdjacentSpace(i) {
+	        if (i > 0 && i < elements.length - 1) {
+	            return (spaceAvailable[i + 1] + spaceAvailable[i - 1]) / 2;
+	        } else if (i === 0) {
+	            return spaceAvailable[i + 1] / 2; // Divide by two since it refers to total space and text is centered
 	        }
+
+	        // Otherwise, we must be at the end of the array
+	        else {
+	                return spaceAvailable[i - 1] / 2;
+	            }
 	    }
 	}
 
-	exports.wrap = wrap;
+	// Wraps text for a single element
+	function wrapText(text, width) {
+
+	    var words = text.text().split(/\s+/).reverse(),
+	        word = void 0,
+	        line = [],
+	        lineNumber = 0,
+	        lineHeight = 1.1,
+	        // ems
+	    tspan = text.text(null).append("tspan").attr("x", 0).attr("y", 0).attr("dy", 0 + "em");
+
+	    // Track the distance between the widest line and the edges
+	    var space = null;
+
+	    while (word = words.pop()) {
+	        line.push(word);
+	        tspan.text(line.join(" "));
+
+	        // See if the current line will fit
+	        var currentSpace = width - tspan.node().getComputedTextLength();
+	        if (currentSpace <= 0) {
+
+	            if (line.length === 1) {
+	                lineNumber--; // Prevent single long word from being moved to the next line
+	            }
+	            line.pop(); // TODO this could leave nothing on the line if there was one word that didn't fit
+	            tspan.text(line.join(" "));
+	            line = [word];
+	            tspan = text.append("tspan").attr("x", 0).attr("dy", ++lineNumber * lineHeight + "em").text(word);
+
+	            currentSpace = width - tspan.node().getComputedTextLength();
+	        }
+
+	        space = d3.min([space, currentSpace]);
+	    }
+
+	    // Return the amount of space left to allow for more complex wrapping with adjacent elements
+	    return space;
+	}
+
+	function applyRotation(angle) {
+	    console.log(text.attr("transform"));
+	    if (text.attr("transform") !== null) {
+	        text.attr("transform", text.attr("transform") + "rotate(" + angle + ")");
+	    } else {
+	        text.attr("transform", "rotate(" + angle + ")");
+	    }
+	}
+
+	exports.wrapAxis = wrapAxis;
 
 /***/ }
 /******/ ]);

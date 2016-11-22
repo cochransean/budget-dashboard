@@ -2,7 +2,7 @@ import * as d3 from "d3";
 import stateBank from './state.js';
 import dispatcher from './dispatch.js';
 import { viewWidth, viewHeight, mobile } from '../index.js';
-import { wrap } from '../js/helpers';
+import { wrapAxis } from '../js/helpers';
 
 // SVG drawing area
 class BarChart {
@@ -258,9 +258,8 @@ class BarChart {
         vis.xAxisGroup
             .call(vis.xAxis)
             .selectAll('.x-axis text')
-            .attr('y', function() {return this.getBoundingClientRect().height * 1.2 })
-            .call(wrap, vis.x0.bandwidth()); // Wrap text TODO implement a solution where words adapt based on surrounding word size (Experimentation should fit)
-        console.log(vis.x0.step());
+            .attr("transform", function() { return "translate(0," + vis.height * 0.05 + ")" })
+            .call(wrapAxis, vis.x0.bandwidth()); // Wrap text TODO implement a solution where words adapt based on surrounding word size (Experimentation should fit)
         vis.yAxisGroup
             .transition()
             .duration(800)

@@ -2,7 +2,7 @@ import * as d3 from "d3";
 import stateBank from './state.js';
 import dispatcher from './dispatch.js';
 import { viewWidth, viewHeight, mobile } from '../index.js';
-import { wrap } from '../js/helpers';
+import { wrapAxis } from '../js/helpers';
 
 class Mixer {
 
@@ -168,7 +168,7 @@ class Mixer {
         });
 
         vis.svg.selectAll(".slider-label")
-            .call(wrap, vis.x.bandwidth());
+            .call(wrapAxis, vis.x.bandwidth());
 
         // Add the total percentage widget
         // Different scale to show when user has selected over 100
