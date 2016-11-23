@@ -68,22 +68,52 @@ function wrapText(text, width) {
     let space = null;
 
     while (word = words.pop()) {
+
+        // Start building out the current line
         line.push(word);
+
+        // Add the current line to the current tspan
         tspan.text(line.join(" "));
 
-        // See if the current line will fit
+        console.log(word);
+        console.log(line.length);
+
+        // See if the current line fits
         let currentSpace = width - tspan.node().getComputedTextLength();
         if (currentSpace <= 0) {
 
+            // If there is only one word and it doesn't fit, the word will always be too long for the provided space
             if (line.length === 1) {
-                lineNumber--; // Prevent single long word from being moved to the next line
-            }
-            line.pop(); // TODO this could leave nothing on the line if there was one word that didn't fit
-            tspan.text(line.join(" "));
-            line = [word];
-            tspan = text.append("tspan").attr("x", 0).attr("dy", ++lineNumber * lineHeight + "em").text(word);
 
-            currentSpace = width - tspan.node().getComputedTextLength();
+                console.log('if');
+
+                // Go ahead and add the word, even though it is too wide
+                tspan.text(line[0]);
+
+                // There is no need to update the currentSpace since it has already been measured
+
+                // TODO flag for rotation since a word didn't fit
+
+            }
+
+            // Otherwise, at least one word has fit
+            else {
+
+                console.log('else');
+
+                // Clear the line array to start a new line
+                line = [];
+
+                // Add the word that didn't fit back to the queue because it might fit by itself on the next line
+                words.push(word);
+
+                // Add the current line to the current tspan minus the word that was too long
+                tspan.text(line.join(" "));
+
+                // Update the current space before creating a tspan for the next new line because a word has been
+                // removed since last measured
+                currentSpace = width - tspan.node().getComputedTextLength();
+            }
         }
 
         space = d3.min([space, currentSpace]);
