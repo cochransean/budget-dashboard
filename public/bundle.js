@@ -10414,15 +10414,48 @@
 	        }
 	    }
 
-	    //    if (rotate === true) {
-	    //        text.attr("text-anchor", "start");
-	    //        applyRotation(45);
-	    //    }
-	    //    else {
-	    //        text.attr("text-anchor", "middle");
-	    //    }
+	    // Once done trying to make room, see if everything fit. Doing is here rather than above prevents repeated
+	    // checking of the same column as space is made in adjacent columns
+	    var _iteratorNormalCompletion = true;
+	    var _didIteratorError = false;
+	    var _iteratorError = undefined;
 
-	    // Gets the space available around a given element
+	    try {
+	        for (var _iterator = spaceAvailable[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	            var space = _step.value;
+
+
+	            // If any space is negative, there was not room for the given section of text
+	            if (space < 0) {
+
+	                // Try to make room by moving the anchor point and rotating the text
+	                text.attr("text-anchor", "start");
+	                applyRotation(text, 45);
+
+	                // Quit looping because it doesn't matter how much room the rest have; the text has already rotated
+	                break;
+	            }
+
+	            // If we get here, everything fit TODO can move this to CSS since this is default
+	            text.attr("text-anchor", "middle");
+	        }
+
+	        // Gets the space available around a given element
+	    } catch (err) {
+	        _didIteratorError = true;
+	        _iteratorError = err;
+	    } finally {
+	        try {
+	            if (!_iteratorNormalCompletion && _iterator.return) {
+	                _iterator.return();
+	            }
+	        } finally {
+	            if (_didIteratorError) {
+	                throw _iteratorError;
+	            }
+	        }
+	    }
+
 	    function getAdjacentSpace(i) {
 	        if (i > 0 && i < elements.length - 1) {
 	            return (spaceAvailable[i + 1] + spaceAvailable[i - 1]) / 2;
@@ -10443,7 +10476,6 @@
 	    var words = text.text().split(/\s+/).reverse(),
 	        word = void 0,
 	        line = [],
-	        lineNumber = 0,
 	        lineHeight = 1.1,
 	        // ems
 	    tspan = text.text(null).append("tspan").attr("x", 0).attr("y", 0).attr("dy", 0 + "em");
@@ -10459,9 +10491,6 @@
 	        // Add the current line to the current tspan
 	        tspan.text(line.join(" "));
 
-	        console.log(word);
-	        console.log(line.length);
-
 	        // See if the current line fits
 	        var currentSpace = width - tspan.node().getComputedTextLength();
 	        if (currentSpace <= 0) {
@@ -10469,34 +10498,40 @@
 	            // If there is only one word and it doesn't fit, the word will always be too long for the provided space
 	            if (line.length === 1) {
 
-	                console.log('if');
-
 	                // Go ahead and add the word, even though it is too wide
 	                tspan.text(line[0]);
 
 	                // There is no need to update the currentSpace since it has already been measured
-
-	                // TODO flag for rotation since a word didn't fit
 	            }
 
 	            // Otherwise, at least one word has fit
 	            else {
 
-	                    console.log('else');
-
-	                    // Clear the line array to start a new line
-	                    line = [];
-
 	                    // Add the word that didn't fit back to the queue because it might fit by itself on the next line
 	                    words.push(word);
 
 	                    // Add the current line to the current tspan minus the word that was too long
+	                    line.pop();
 	                    tspan.text(line.join(" "));
 
 	                    // Update the current space before creating a tspan for the next new line because a word has been
 	                    // removed since last measured
 	                    currentSpace = width - tspan.node().getComputedTextLength();
 	                }
+
+	            // Clear the line array to start a new line
+	            line = [];
+
+	            // If there are any words left
+	            if (words.length > 0) {
+
+	                // Add a new line without any current word since, if a word remains, it will be added on the next pass
+	                // The 'dy' attribute seems to reference the previous tspan element and not the overall text parent
+	                // Thus, there is no '++lineNumber * lineHeight' line to increment the dy attribute
+	                // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/dy
+	                // This will need to be tested on other browsers to ensure they respond similarly
+	                tspan = text.append("tspan").attr("x", 0).attr("dy", lineHeight + "em").text(null);
+	            }
 	        }
 
 	        space = d3.min([space, currentSpace]);
@@ -10506,8 +10541,8 @@
 	    return space;
 	}
 
-	function applyRotation(angle) {
-	    console.log(text.attr("transform"));
+	// Transform the provided text to the given angle while preserving any preexisting translation
+	function applyRotation(text, angle) {
 	    if (text.attr("transform") !== null) {
 	        text.attr("transform", text.attr("transform") + "rotate(" + angle + ")");
 	    } else {
