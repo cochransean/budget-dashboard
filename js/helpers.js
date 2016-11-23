@@ -68,6 +68,19 @@ function wrapAxis(text, width) {
 // Wraps text for a single element
 function wrapText(text, width) {
 
+    // If there is already a tspan
+    let existingTspan = text.selectAll('tspan');
+    if (existingTspan.empty() === false) {
+        let currentWords = [];
+
+        // Reconstruct the complete string with spaces so the following code behaves the same even when tspans already
+        // exist
+        existingTspan.each(function() {
+            currentWords.push(d3.select(this).text());
+        });
+        text.text(currentWords.join(' '));
+    }
+
     let words = text.text().split(/\s+/).reverse(),
         word,
         line = [],
