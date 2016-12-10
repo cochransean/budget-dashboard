@@ -33,7 +33,7 @@ class Mixer {
 
         else {
             vis.margin = {
-                top: 27,
+                top: 20,
                 right: chartDivRect.width * 0.25,
                 bottom: 37,
                 left: 15

@@ -864,7 +864,7 @@
 	                vis.margin = {
 	                    top: vis.chartDivRect.height * 0.025,
 	                    right: 50,
-	                    bottom: vis.chartDivRect.height * 0.26,
+	                    bottom: vis.chartDivRect.height > vis.chartDivRect.width ? vis.chartDivRect.height * 0.26 : vis.chartDivRect.height * 0.3,
 	                    left: 57
 	                };
 	            }
@@ -1628,7 +1628,7 @@
 	                };
 	            } else {
 	                vis.margin = {
-	                    top: 27,
+	                    top: 20,
 	                    right: chartDivRect.width * 0.25,
 	                    bottom: 37,
 	                    left: 15
