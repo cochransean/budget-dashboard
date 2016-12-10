@@ -50,7 +50,7 @@ class BarChartLegend {
             });
 
             // Add legend labels
-            ['Actual Programmed', 'Expert Consensus'].forEach(function(text, index) {
+            ['Budgeted', 'Expert Consensus'].forEach(function(text, index) {
                 legendGroup.append('text')
                     .attr('x', () => swatchWidth * 1.2)
                     .attr('y', () => swatchWidth / 2 + index * swatchWidth * 2)
@@ -72,7 +72,7 @@ class BarChartLegend {
             });
 
             // Add legend labels
-            ['Actual Programmed', 'Expert Consensus'].forEach(function(text, index) {
+            ['Budgeted', 'Expert Consensus'].forEach(function(text, index) {
                 legendGroup.append('text')
                     .attr('x', () => swatchWidth * 1.2 + vis.width / 2 * index)
                     .attr('y', () => swatchWidth / 2)

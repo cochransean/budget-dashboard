@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 import stateBank from './state.js';
 import dispatcher from './dispatch.js';
-import { viewWidth, viewHeight, mobile } from '../index.js';
+import { viewWidth, mobile } from '../index.js';
 import { wrapAxis } from '../js/helpers';
 
 // SVG drawing area
@@ -32,12 +32,23 @@ class BarChart {
         // Setup margins in responsive way; actual size is determined by CSS
         let chartDiv = d3.select(vis.parentDivID);
         let chartDivRect = chartDiv.node().getBoundingClientRect();
-        vis.margin = {
-            top: chartDivRect.height * 0.025,
-            right: chartDivRect.width * 0.1,
-            bottom: viewWidth > mobile ? chartDivRect.height * 0.1: chartDivRect.height * 0.3,
-            left: viewWidth > mobile ? chartDivRect.width * 0.1: chartDivRect.width * 0.15
-        };
+        if (viewWidth > mobile) {
+            vis.margin = {
+                top: chartDivRect.height * 0.025,
+                right: chartDivRect.width * 0.1,
+                bottom: chartDivRect.height * 0.1,
+                left: chartDivRect.width * 0.1
+            };
+        }
+        else {
+            vis.margin = {
+                top: chartDivRect.height * 0.025,
+                right: 50,
+                bottom: chartDivRect.height * 0.26,
+                left: 57
+            };
+        }
+
         vis.width = chartDivRect.width - vis.margin.left - vis.margin.right;
         vis.height = chartDivRect.height - vis.margin.top - vis.margin.bottom;
 
@@ -78,16 +89,16 @@ class BarChart {
                     return vis.height * 1.1
                 }
                 else {
-                    return vis.height * 1.4
+                    return vis.height * 1.32
                 }
             })
             .attr('class', 'axis-label');
 
-        let yLabelOffset = viewWidth > mobile ? vis.width * -0.038: vis.width * -0.16;
+        let yLabelOffset = viewWidth > mobile ? vis.width * -0.038: -55;
         vis.svg.append('text')
             .attr("transform", "translate(" + yLabelOffset + "," + vis.height / 2 + ") rotate(90)")
             .attr('class', 'axis-label')
-            .text('Value (Billions of Dollars)');
+            .text('Value (Billions)');
 
 
         // Calculate the dollar value of expert consensus
@@ -258,8 +269,8 @@ class BarChart {
         vis.xAxisGroup
             .call(vis.xAxis)
             .selectAll('.x-axis text')
-            .attr("transform", function() { return "translate(0," + vis.height * 0.05 + ")" })
-            .call(wrapAxis, vis.x0.bandwidth()); // Wrap text TODO implement a solution where words adapt based on surrounding word size (Experimentation should fit)
+            .attr("transform", function() { return "translate(0, 15)" })
+            .call(wrapAxis, vis.x0.bandwidth()); // Wrap text
         vis.yAxisGroup
             .transition()
             .duration(800)

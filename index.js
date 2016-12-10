@@ -7,7 +7,7 @@ import BarChartLegend from './components/bar-chart-legend.js';
 import Mixer from './components/mixer.js';
 
 // Breakpoints
-const mobile = 767;
+const mobile = 991;
 
 
 // Get viewport sizing

@@ -8,25 +8,25 @@ $minor-border-width: 0.1vmax;
 $background-color: #f0f0f0;
 
 /* Breakpoints */
-$xs: 767px;
+$md: 991px;
 
 /* Responsive MixIns */
 %minor-text {
-  @media screen and (max-width: $xs) /* Mobile */ {
+  @media screen and (max-width: $md) /* Mobile */ {
     font-size: $minor-text-size-mobile;
   }
 
-  @media screen and (min-width: $xs + 1) /* Desktop and Tablet */ {
+  @media screen and (min-width: $md + 1) /* Desktop and Laptop */ {
     font-size: $minor-text-size-desktop;
   }
 }
 
 %label-text {
-  @media screen and (max-width: $xs) /* Mobile */ {
+  @media screen and (max-width: $md) /* Mobile */ {
     font-size: $label-text-size-mobile;
   }
 
-  @media screen and (min-width: $xs + 1) /* Desktop and Tablet */ {
+  @media screen and (min-width: $md + 1) /* Desktop and Laptop */ {
     font-size: $label-text-size-desktop;
   }
 }
@@ -39,6 +39,7 @@ $xs: 767px;
 /* Overall Styles */
 body {
   background-color: $background-color;
+  overflow: hidden; /* Prevent scrolling */
 }
 
 .vis-container {
@@ -47,18 +48,19 @@ body {
 
 /* Heading Styles */
 #dashboard-heading {
-  font-size: 4.5vmin;
-  height: 3.5vh;
-  margin-bottom: 0.5vh;
+  font-size: 4.5vh;
+  height: 5vh;
+  padding-bottom: 0.5vh;
+  font-weight: bold;
 }
 
 /* Bar Chart Styles */
 #bar-chart {
-  @media screen and (max-width: $xs) /* Mobile */ {
+  @media screen and (max-width: $md) /* Mobile */ {
     height: 50%;
   }
 
-  @media screen and (min-width: $xs + 1) /* Desktop and Tablet */ {
+  @media screen and (min-width: $md + 1) /* Desktop and Laptop */ {
     height: 70%;
   }
 }
@@ -94,7 +96,7 @@ body {
 }
 
 #bar-chart-legend-xs {
-  height: 2.5%;
+  height: 5%;
 }
 
 .swatch-label {
@@ -105,17 +107,20 @@ body {
 /* Overall Control and Legend Styles */
 #control-row {
   margin: 0;
-  @media screen and (max-width: $xs) /* Mobile */ {
-    height: 42%;
+  @media screen and (max-width: $md) /* Mobile */ {
+    height: 39.5%;
   }
 
-  @media screen and (min-width: $xs + 1) /* Desktop and Tablet */ {
+  @media screen and (min-width: $md + 1) /* Desktop and Laptop */ {
     height: 22%;
   }
 }
 
 #mixer {
   height: 100%;
+  @media screen and (max-width: $md) /* Mobile */ {
+    padding: 0;
+  }
 }
 
 .slider-guide, .total-guide {
@@ -162,22 +167,22 @@ body {
 .track {
   stroke: #000;
   stroke-opacity: 0.3;
-  @media screen and (max-width: $xs) /* Mobile */ {
+  @media screen and (max-width: $md) /* Mobile */ {
     stroke-width: 2.06vw;
   }
 
-  @media screen and (min-width: $xs + 1) /* Desktop and Tablet */ {
+  @media screen and (min-width: $md + 1) /* Desktop and Laptop */ {
     stroke-width: 0.52vw;
   }
 }
 
 .track-inset {
   stroke: #d9d9d9;
-  @media screen and (max-width: $xs) /* Mobile */ {
+  @media screen and (max-width: $md) /* Mobile */ {
     stroke-width: 1.76vw;
   }
 
-  @media screen and (min-width: $xs + 1) /* Desktop and Tablet */ {
+  @media screen and (min-width: $md + 1) /* Desktop and Laptop */ {
     stroke-width: 0.42vw;
   }
 }
@@ -189,11 +194,11 @@ body {
 
 .track-overlay {
   pointer-events: stroke;
-  @media screen and (max-width: $xs) /* Mobile */ {
+  @media screen and (max-width: $md) /* Mobile */ {
     stroke-width: 8.3vw;
   }
 
-  @media screen and (min-width: $xs + 1) /* Desktop and Tablet */ {
+  @media screen and (min-width: $md + 1) /* Desktop and Laptop */ {
     stroke-width: 2.6vw;
   }
   cursor: crosshair;
@@ -229,5 +234,6 @@ body {
 
 .total-label-text {
   @extend .slider-label;
+  text-anchor: middle;
   font-weight: 800;
 }

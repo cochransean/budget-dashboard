@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 import stateBank from './state.js';
 import dispatcher from './dispatch.js';
-import { viewWidth, viewHeight, mobile } from '../index.js';
+import { viewWidth, mobile } from '../index.js';
 import { wrapAxis } from '../js/helpers';
 
 class Mixer {
@@ -25,7 +25,7 @@ class Mixer {
         if (viewWidth > mobile) {
             vis.margin = {
                 top: chartDivRect.height * 0.25,
-                right: chartDivRect.width * 0.2,
+                right: chartDivRect.width * 0.14,
                 bottom: chartDivRect.height * 0.2,
                 left: 0
             };
@@ -33,10 +33,10 @@ class Mixer {
 
         else {
             vis.margin = {
-                top: chartDivRect.height * 0.1,
-                right: chartDivRect.width * 0.2,
-                bottom: chartDivRect.height * 0.4, // TODO do a quick check to see if words won't fit and leave less space if you can
-                left: chartDivRect.width * 0.05
+                top: 27,
+                right: chartDivRect.width * 0.25,
+                bottom: 37,
+                left: 15
             };
         }
 
@@ -70,8 +70,8 @@ class Mixer {
         // Add explanatory lines and labels for the sliders themselves
         vis.svg.append("line")
             .attr("class", "slider-guide")
-            .attr("x1", vis.x(vis.sliderLabels[0]) + vis.x.bandwidth() / 2)
-            .attr("x2", vis.x(vis.sliderLabels[vis.sliderLabels.length - 1]) + vis.x.bandwidth() / 2)
+            .attr("x1", vis.x(vis.sliderLabels[0]) + vis.x.bandwidth() / 3)
+            .attr("x2", vis.x(vis.sliderLabels[vis.sliderLabels.length - 1]) + vis.x.bandwidth() / 3)
             .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
             .attr("y1", vis.height)
             .attr("y2", vis.height);
@@ -82,7 +82,7 @@ class Mixer {
 
         let labelDimensions = vis.svg.append("text")
             .attr("y", vis.height)
-            .attr("x", vis.x(vis.sliderLabels[0]) - sliderTextPadding + vis.x.bandwidth() / 2)
+            .attr("x", vis.x(vis.sliderLabels[0]) - sliderTextPadding + vis.x.bandwidth() / 3)
             .text("0%")
             .attr("class", "slider-guide-text")
             .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
@@ -96,7 +96,7 @@ class Mixer {
             // Append group for each
             let slider = vis.svg.append("g")
                 .attr("class", "slider")
-                .attr("transform", "translate(" + (vis.x(label) + vis.x.bandwidth() / 2) + ", 0)");
+                .attr("transform", "translate(" + (vis.x(label) + vis.x.bandwidth() / 3) + ", 0)");
 
             slider.append("line")
                 .attr("class", "track")
@@ -141,7 +141,7 @@ class Mixer {
 
             slider.append("text")
                 .attr("class", "slider-label")
-                .attr("transform", () =>  "translate(0," + (vis.height + radius * 2.7) + ")")
+                .attr("transform", () =>  "translate(0," + (vis.height + radius + 15) + ")")
                 .text(label);
 
             let handle = slider.insert("circle", ".track-overlay")
@@ -178,9 +178,10 @@ class Mixer {
             .clamp(true);
 
         // Constants that will be reused
-        const totalPercentageWidth = vis.x.bandwidth() / 4;
+        const textWidth = viewWidth > mobile ? 70 :53;
+        const totalPercentageWidth = vis.margin.right - textWidth;
         const totalStartX = vis.width;
-        const totalLabelX = totalStartX + totalPercentageWidth + sliderTextPadding;
+        const totalLabelX = totalStartX + totalPercentageWidth + 5; // Add padding for labels
 
         // Add total bar itself
         vis.totalBar = vis.svg.append("rect")
@@ -224,13 +225,8 @@ class Mixer {
         //  Add 'Total' Text Label in bold at bottom
         vis.svg.append("text")
             .attr('transform', function() {
-                if (viewWidth > mobile) {
-                    return "translate(" + (vis.width + totalPercentageWidth / 2) + "," + vis.height * 1.3 + ")"
-                }
-                else {
-                    return "translate(" + (vis.width + totalPercentageWidth / 2) + "," + vis.height * 1.15 + ")" +
-                        "rotate(45)"
-                }
+                return "translate(" + (totalStartX + totalPercentageWidth / 2) + "," + (vis.height + 17) + ")"
+
             })
             .attr("class", "total-label-text")
             .text("Total");

@@ -1,18 +1,18 @@
 /* Breakpoints */
 /* Responsive MixIns */
-@media screen and (max-width: 767px) {
+@media screen and (max-width: 991px) {
   .axis, .swatch-label, .slider-label, .total-label-text, .slider-guide-text, .slider-percentage {
     font-size: 1.8vmax; } }
 
-@media screen and (min-width: 768px) {
+@media screen and (min-width: 992px) {
   .axis, .swatch-label, .slider-label, .total-label-text, .slider-guide-text, .slider-percentage {
     font-size: 0.83vmax; } }
 
-@media screen and (max-width: 767px) {
+@media screen and (max-width: 991px) {
   .axis-label {
     font-size: 2vmax; } }
 
-@media screen and (min-width: 768px) {
+@media screen and (min-width: 992px) {
   .axis-label {
     font-size: 0.88vmax; } }
 
@@ -23,23 +23,26 @@
 
 /* Overall Styles */
 body {
-  background-color: #f0f0f0; }
+  background-color: #f0f0f0;
+  overflow: hidden;
+  /* Prevent scrolling */ }
 
 .vis-container {
   height: 100vh; }
 
 /* Heading Styles */
 #dashboard-heading {
-  font-size: 4.5vmin;
-  height: 3.5vh;
-  margin-bottom: 0.5vh; }
+  font-size: 4.5vh;
+  height: 5vh;
+  padding-bottom: 0.5vh;
+  font-weight: bold; }
 
 /* Bar Chart Styles */
-@media screen and (max-width: 767px) {
+@media screen and (max-width: 991px) {
   #bar-chart {
     height: 50%; } }
 
-@media screen and (min-width: 768px) {
+@media screen and (min-width: 992px) {
   #bar-chart {
     height: 70%; } }
 
@@ -66,20 +69,23 @@ body {
   height: 100%; }
 
 #bar-chart-legend-xs {
-  height: 2.5%; }
+  height: 5%; }
 
 /* Overall Control and Legend Styles */
 #control-row {
   margin: 0; }
-  @media screen and (max-width: 767px) {
+  @media screen and (max-width: 991px) {
     #control-row {
-      height: 42%; } }
-  @media screen and (min-width: 768px) {
+      height: 39.5%; } }
+  @media screen and (min-width: 992px) {
     #control-row {
       height: 22%; } }
 
 #mixer {
   height: 100%; }
+  @media screen and (max-width: 991px) {
+    #mixer {
+      padding: 0; } }
 
 .slider-guide, .total-guide {
   stroke: black;
@@ -110,19 +116,19 @@ body {
 .track {
   stroke: #000;
   stroke-opacity: 0.3; }
-  @media screen and (max-width: 767px) {
+  @media screen and (max-width: 991px) {
     .track {
       stroke-width: 2.06vw; } }
-  @media screen and (min-width: 768px) {
+  @media screen and (min-width: 992px) {
     .track {
       stroke-width: 0.52vw; } }
 
 .track-inset, .track-actual-setting {
   stroke: #d9d9d9; }
-  @media screen and (max-width: 767px) {
+  @media screen and (max-width: 991px) {
     .track-inset, .track-actual-setting {
       stroke-width: 1.76vw; } }
-  @media screen and (min-width: 768px) {
+  @media screen and (min-width: 992px) {
     .track-inset, .track-actual-setting {
       stroke-width: 0.42vw; } }
 
@@ -132,10 +138,10 @@ body {
 .track-overlay {
   pointer-events: stroke;
   cursor: crosshair; }
-  @media screen and (max-width: 767px) {
+  @media screen and (max-width: 991px) {
     .track-overlay {
       stroke-width: 8.3vw; } }
-  @media screen and (min-width: 768px) {
+  @media screen and (min-width: 992px) {
     .track-overlay {
       stroke-width: 2.6vw; } }
 
@@ -164,4 +170,5 @@ body {
   /* Fix the "not quite right" vertical alignment */ }
 
 .total-label-text {
+  text-anchor: middle;
   font-weight: 800; }
