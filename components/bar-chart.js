@@ -31,26 +31,26 @@ class BarChart {
 
         // Setup margins in responsive way; actual size is determined by CSS
         let chartDiv = d3.select(vis.parentDivID);
-        let chartDivRect = chartDiv.node().getBoundingClientRect();
+        vis.chartDivRect = chartDiv.node().getBoundingClientRect();
         if (viewWidth > mobile) {
             vis.margin = {
-                top: chartDivRect.height * 0.025,
-                right: chartDivRect.width * 0.1,
-                bottom: chartDivRect.height * 0.1,
-                left: chartDivRect.width * 0.1
+                top: vis.chartDivRect.height * 0.025,
+                right: vis.chartDivRect.width * 0.1,
+                bottom: vis.chartDivRect.height * 0.1,
+                left: vis.chartDivRect.width * 0.1
             };
         }
         else {
             vis.margin = {
-                top: chartDivRect.height * 0.025,
+                top: vis.chartDivRect.height * 0.025,
                 right: 50,
-                bottom: chartDivRect.height * 0.26,
+                bottom: vis.chartDivRect.height * 0.26,
                 left: 57
             };
         }
 
-        vis.width = chartDivRect.width - vis.margin.left - vis.margin.right;
-        vis.height = chartDivRect.height - vis.margin.top - vis.margin.bottom;
+        vis.width = vis.chartDivRect.width - vis.margin.left - vis.margin.right;
+        vis.height = vis.chartDivRect.height - vis.margin.top - vis.margin.bottom;
 
         vis.svg = chartDiv.append("svg")
             .attr("width", vis.width + vis.margin.left + vis.margin.right)
@@ -84,14 +84,6 @@ class BarChart {
 
         vis.xAxisText = vis.svg.append('text')
             .attr('x', () => vis.width / 2)
-            .attr('y', function() {
-                if (viewWidth > mobile) {
-                    return vis.height * 1.1
-                }
-                else {
-                    return vis.height * 1.32
-                }
-            })
             .attr('class', 'axis-label');
 
         let yLabelOffset = viewWidth > mobile ? vis.width * -0.038: -55;
@@ -206,10 +198,7 @@ class BarChart {
 
         actualValueBars.enter()
             .append('rect')
-            .on("click", function(d) {
-                vis.portfolioSelected = d.portfolio;
-                vis.wrangleData();
-            })
+            .on("click", barClickResponse)
             .merge(actualValueBars)
             .style("opacity", 0.5)
             .transition()
@@ -238,10 +227,7 @@ class BarChart {
 
         consensusBars.enter()
             .append('rect')
-            .on("click", function(d) {
-                vis.portfolioSelected = d.portfolio;
-                vis.wrangleData();
-            })
+            .on("click", barClickResponse)
             .merge(consensusBars)
             .style("opacity", 0.5)
             .transition()
@@ -266,18 +252,59 @@ class BarChart {
             .style("opacity", 1);
 
         // update axes
-        vis.xAxisGroup
+        vis.xAxisLabels = vis.xAxisGroup
             .call(vis.xAxis)
-            .selectAll('.x-axis text')
+            .selectAll('.x-axis text');
+        vis.xAxisLabels
             .attr("transform", function() { return "translate(0, 15)" })
             .call(wrapAxis, vis.x0.bandwidth()); // Wrap text
         vis.yAxisGroup
             .transition()
             .duration(800)
             .call(vis.yAxis);
-
         vis.xAxisText
+            .attr('y', function() {
+
+                // Filter to the X axis labels that are over the top of the label
+                let labels = vis.xAxisLabels.filter(function(d, i) {
+                    if (i === 2 || i === 3 || i === 4) {
+                        return this
+                    }
+                    else {
+                        return null
+                    }
+                });
+
+                // Find the lowest label
+                let lowLabelY = 0;
+                labels.each(function() {
+                    let currentBottom = this.getBoundingClientRect().bottom;
+                    if (currentBottom >= lowLabelY) {
+                        lowLabelY = currentBottom;
+                    }
+                });
+
+                // Convert to relative coordinates and add padding
+                const padding = 10;
+                return lowLabelY - vis.chartDivRect.top + padding;
+            })
             .text(() => vis.portfolioSelected === null ? 'Portfolios': 'Capabilities');
+
+        function barClickResponse(d) {
+
+            // If zoomed all the way out to portfolio level view
+            if (vis.portfolioSelected === null) {
+                vis.portfolioSelected = d.portfolio;
+            }
+
+            // If zoomed in to capability level view
+            else {
+                vis.portfolioSelected = null;
+            }
+
+            // Update the vis
+            vis.wrangleData();
+        }
 
     }
 

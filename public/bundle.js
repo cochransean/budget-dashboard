@@ -852,25 +852,25 @@
 
 	            // Setup margins in responsive way; actual size is determined by CSS
 	            var chartDiv = d3.select(vis.parentDivID);
-	            var chartDivRect = chartDiv.node().getBoundingClientRect();
+	            vis.chartDivRect = chartDiv.node().getBoundingClientRect();
 	            if (_index.viewWidth > _index.mobile) {
 	                vis.margin = {
-	                    top: chartDivRect.height * 0.025,
-	                    right: chartDivRect.width * 0.1,
-	                    bottom: chartDivRect.height * 0.1,
-	                    left: chartDivRect.width * 0.1
+	                    top: vis.chartDivRect.height * 0.025,
+	                    right: vis.chartDivRect.width * 0.1,
+	                    bottom: vis.chartDivRect.height * 0.1,
+	                    left: vis.chartDivRect.width * 0.1
 	                };
 	            } else {
 	                vis.margin = {
-	                    top: chartDivRect.height * 0.025,
+	                    top: vis.chartDivRect.height * 0.025,
 	                    right: 50,
-	                    bottom: chartDivRect.height * 0.26,
+	                    bottom: vis.chartDivRect.height * 0.26,
 	                    left: 57
 	                };
 	            }
 
-	            vis.width = chartDivRect.width - vis.margin.left - vis.margin.right;
-	            vis.height = chartDivRect.height - vis.margin.top - vis.margin.bottom;
+	            vis.width = vis.chartDivRect.width - vis.margin.left - vis.margin.right;
+	            vis.height = vis.chartDivRect.height - vis.margin.top - vis.margin.bottom;
 
 	            vis.svg = chartDiv.append("svg").attr("width", vis.width + vis.margin.left + vis.margin.right).attr("height", vis.height + vis.margin.top + vis.margin.bottom).append("g").attr("transform", "translate(" + vis.margin.left + "," + vis.margin.top + ")");
 
@@ -890,12 +890,6 @@
 
 	            vis.xAxisText = vis.svg.append('text').attr('x', function () {
 	                return vis.width / 2;
-	            }).attr('y', function () {
-	                if (_index.viewWidth > _index.mobile) {
-	                    return vis.height * 1.1;
-	                } else {
-	                    return vis.height * 1.32;
-	                }
 	            }).attr('class', 'axis-label');
 
 	            var yLabelOffset = _index.viewWidth > _index.mobile ? vis.width * -0.038 : -55;
@@ -1020,10 +1014,7 @@
 
 	            actualValueBars.exit().remove();
 
-	            actualValueBars.enter().append('rect').on("click", function (d) {
-	                vis.portfolioSelected = d.portfolio;
-	                vis.wrangleData();
-	            }).merge(actualValueBars).style("opacity", 0.5).transition().duration(800).attr('x', function (d) {
+	            actualValueBars.enter().append('rect').on("click", barClickResponse).merge(actualValueBars).style("opacity", 0.5).transition().duration(800).attr('x', function (d) {
 	                if (vis.portfolioSelected === null) {
 	                    return vis.x0(d.portfolio);
 	                } else {
@@ -1042,10 +1033,7 @@
 
 	            consensusBars.exit().remove();
 
-	            consensusBars.enter().append('rect').on("click", function (d) {
-	                vis.portfolioSelected = d.portfolio;
-	                vis.wrangleData();
-	            }).merge(consensusBars).style("opacity", 0.5).transition().duration(800).attr('x', function (d) {
+	            consensusBars.enter().append('rect').on("click", barClickResponse).merge(consensusBars).style("opacity", 0.5).transition().duration(800).attr('x', function (d) {
 	                if (vis.portfolioSelected === null) {
 	                    return vis.x0(d.portfolio) + vis.x0.bandwidth() / 2;
 	                } else {
@@ -1063,14 +1051,53 @@
 	            }).attr('class', 'bar-consensus').style("opacity", 1);
 
 	            // update axes
-	            vis.xAxisGroup.call(vis.xAxis).selectAll('.x-axis text').attr("transform", function () {
+	            vis.xAxisLabels = vis.xAxisGroup.call(vis.xAxis).selectAll('.x-axis text');
+	            vis.xAxisLabels.attr("transform", function () {
 	                return "translate(0, 15)";
 	            }).call(_helpers.wrapAxis, vis.x0.bandwidth()); // Wrap text
 	            vis.yAxisGroup.transition().duration(800).call(vis.yAxis);
+	            vis.xAxisText.attr('y', function () {
 
-	            vis.xAxisText.text(function () {
+	                // Filter to the X axis labels that are over the top of the label
+	                var labels = vis.xAxisLabels.filter(function (d, i) {
+	                    if (i === 2 || i === 3 || i === 4) {
+	                        return this;
+	                    } else {
+	                        return null;
+	                    }
+	                });
+
+	                // Find the lowest label
+	                var lowLabelY = 0;
+	                labels.each(function () {
+	                    var currentBottom = this.getBoundingClientRect().bottom;
+	                    if (currentBottom >= lowLabelY) {
+	                        lowLabelY = currentBottom;
+	                    }
+	                });
+
+	                // Convert to relative coordinates and add padding
+	                var padding = 10;
+	                return lowLabelY - vis.chartDivRect.top + padding;
+	            }).text(function () {
 	                return vis.portfolioSelected === null ? 'Portfolios' : 'Capabilities';
 	            });
+
+	            function barClickResponse(d) {
+
+	                // If zoomed all the way out to portfolio level view
+	                if (vis.portfolioSelected === null) {
+	                    vis.portfolioSelected = d.portfolio;
+	                }
+
+	                // If zoomed in to capability level view
+	                else {
+	                        vis.portfolioSelected = null;
+	                    }
+
+	                // Update the vis
+	                vis.wrangleData();
+	            }
 	        }
 	    }, {
 	        key: 'calcConsensus',
