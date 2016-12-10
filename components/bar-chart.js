@@ -267,7 +267,7 @@ class BarChart {
 
                 // Filter to the X axis labels that are over the top of the label
                 let labels = vis.xAxisLabels.filter(function(d, i) {
-                    if (i === 2 || i === 3 || i === 4) {
+                    if (i === 1 || i === 2 || i === 3) {
                         return this
                     }
                     else {
@@ -282,10 +282,12 @@ class BarChart {
                     if (currentBottom >= lowLabelY) {
                         lowLabelY = currentBottom;
                     }
+                    console.log(this);
                 });
 
                 // Convert to relative coordinates and add padding
-                const padding = viewWidth > mobile ? 5: 0;
+                const padding = 5;
+                console.log(lowLabelY - vis.chartDivRect.top + padding);
                 return lowLabelY - vis.chartDivRect.top + padding;
             })
             .text(() => vis.portfolioSelected === null ? 'Portfolios': 'Capabilities');

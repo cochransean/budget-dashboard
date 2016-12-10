@@ -1060,7 +1060,7 @@
 
 	                // Filter to the X axis labels that are over the top of the label
 	                var labels = vis.xAxisLabels.filter(function (d, i) {
-	                    if (i === 2 || i === 3 || i === 4) {
+	                    if (i === 1 || i === 2 || i === 3) {
 	                        return this;
 	                    } else {
 	                        return null;
@@ -1074,10 +1074,12 @@
 	                    if (currentBottom >= lowLabelY) {
 	                        lowLabelY = currentBottom;
 	                    }
+	                    console.log(this);
 	                });
 
 	                // Convert to relative coordinates and add padding
-	                var padding = _index.viewWidth > _index.mobile ? 5 : 0;
+	                var padding = 5;
+	                console.log(lowLabelY - vis.chartDivRect.top + padding);
 	                return lowLabelY - vis.chartDivRect.top + padding;
 	            }).text(function () {
 	                return vis.portfolioSelected === null ? 'Portfolios' : 'Capabilities';
