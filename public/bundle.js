@@ -1077,7 +1077,7 @@
 	                });
 
 	                // Convert to relative coordinates and add padding
-	                var padding = 10;
+	                var padding = 5;
 	                return lowLabelY - vis.chartDivRect.top + padding;
 	            }).text(function () {
 	                return vis.portfolioSelected === null ? 'Portfolios' : 'Capabilities';
