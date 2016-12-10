@@ -285,7 +285,7 @@ class BarChart {
                 });
 
                 // Convert to relative coordinates and add padding
-                const padding = 5;
+                const padding = viewWidth > mobile ? 5: 2;
                 return lowLabelY - vis.chartDivRect.top + padding;
             })
             .text(() => vis.portfolioSelected === null ? 'Portfolios': 'Capabilities');
