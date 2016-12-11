@@ -324,6 +324,11 @@ class Mixer {
 
     }
 
+    removeVis() {
+        let vis = this;
+        d3.select(vis.parentDivID).select("svg").remove();
+    }
+
 }
 
 export default Mixer;

@@ -64,9 +64,9 @@
 
 	var _barChart2 = _interopRequireDefault(_barChart);
 
-	var _barChartLegend2 = __webpack_require__(7);
+	var _barChartLegend = __webpack_require__(7);
 
-	var _barChartLegend3 = _interopRequireDefault(_barChartLegend2);
+	var _barChartLegend2 = _interopRequireDefault(_barChartLegend);
 
 	var _mixer = __webpack_require__(8);
 
@@ -82,33 +82,38 @@
 	// Breakpoints
 	var mobile = 991;
 
-	// Get viewport sizing
-	var viewWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-	var viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+	// D3 Visualizations
+	var barChart = void 0;
+	var mixer = void 0;
+	var barChartLegend = void 0;
+
+	// Data
+	var portfolios = void 0;
+	var consensus = void 0;
+
+	// Variables for viewport sizing
+	var viewWidth = void 0;
+	var viewHeight = void 0;
 
 	// load data
-	(0, _d.queue)().defer(_d.json, 'data/portfolios.json').defer(_d.json, 'data/expert_consensus_alien.json').defer(_d.json, 'data/expert_consensus_zombie.json').defer(_d.json, 'data/expert_consensus_mutant.json').await(function (error, portfolios, consensusA, consensusB, consensusC) {
+	(0, _d.queue)().defer(_d.json, 'data/portfolios.json').defer(_d.json, 'data/expert_consensus_alien.json').defer(_d.json, 'data/expert_consensus_zombie.json').defer(_d.json, 'data/expert_consensus_mutant.json').await(function (error, portfoliosData, consensusA, consensusB, consensusC) {
 	    if (error) throw error;
 
 	    // Format and prepare the data
-	    var consensus = {
+	    portfolios = portfoliosData;
+	    consensus = {
 	        "Alien Invasion": consensusA,
 	        "Zombie Apocalypse": consensusB,
 	        "Mutant Super-Villain": consensusC
 	    };
 	    prepData(portfolios, consensus);
+	    createVisualizations();
 
-	    // Create the visualizations
-	    var barChart = new _barChart2.default('bar-chart', portfolios, consensus);
-	    var mixer = new _mixer2.default('mixer');
-	    if (viewWidth > mobile) {
-	        var barChartLegend = new _barChartLegend3.default('bar-chart-legend');
-	    }
-
-	    // Make more optimal use of space on mobile devices
-	    else {
-	            var _barChartLegend = new _barChartLegend3.default('bar-chart-legend-xs');
-	        }
+	    var resizeTimer = void 0;
+	    window.onresize = function () {
+	        clearTimeout(resizeTimer);
+	        resizeTimer = setTimeout(resetVisualizations, 100);
+	    };
 	});
 
 	function prepData(portfolios, consensus) {
@@ -220,6 +225,45 @@
 	                }
 	            }
 	        }
+	    });
+	}
+
+	function createVisualizations() {
+
+	    exports.viewWidth = viewWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+	    exports.viewHeight = viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+
+	    // Create the visualizations
+	    barChart = new _barChart2.default('bar-chart', portfolios, consensus);
+	    mixer = new _mixer2.default('mixer');
+	    barChartLegend = new _barChartLegend2.default('bar-chart-legend');
+	}
+
+	function resetVisualizations() {
+
+	    // Remove old visualizations
+	    var removePromise = new Promise(function (resolve) {
+
+	        // Remove the old elements
+	        var oldElements = (0, _d.selectAll)("svg");
+
+	        // Check for all old elements preventing multiple firings with
+	        // leftover elements or when elements have been removed but not yet re-added
+	        if (oldElements.size() === 3) {
+	            oldElements.remove();
+	            resolve('All items deleted');
+	        }
+	    });
+
+	    removePromise.then(function () {
+
+	        // Update dimensions
+	        exports.viewWidth = viewWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+	        exports.viewHeight = viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+
+	        barChart.initVis();
+	        mixer.initVis();
+	        barChartLegend.initVis();
 	    });
 	}
 
@@ -1074,12 +1118,10 @@
 	                    if (currentBottom >= lowLabelY) {
 	                        lowLabelY = currentBottom;
 	                    }
-	                    console.log(this);
 	                });
 
 	                // Convert to relative coordinates and add padding
 	                var padding = 5;
-	                console.log(lowLabelY - vis.chartDivRect.top + padding);
 	                return lowLabelY - vis.chartDivRect.top + padding;
 	            }).text(function () {
 	                return vis.portfolioSelected === null ? 'Portfolios' : 'Capabilities';
@@ -1172,6 +1214,12 @@
 	            }
 
 	            vis.wrangleData();
+	        }
+	    }, {
+	        key: 'removeVis',
+	        value: function removeVis() {
+	            var vis = this;
+	            d3.select(vis.parentDivID).select("svg").remove();
 	        }
 	    }]);
 
@@ -1501,9 +1549,16 @@
 	        value: function initVis() {
 	            var vis = this;
 
+	            // Make more optimal use of space on mobile devices
+	            var chartDiv = void 0;
+	            if (_index.viewWidth > _index.mobile) {
+	                chartDiv = d3.select(vis.parentDivID);
+	            } else {
+	                chartDiv = d3.select(vis.parentDivID + "-xs");
+	            }
+
 	            // Append svg
 	            // Setup margins in responsive way; actual size is determined by CSS
-	            var chartDiv = d3.select(vis.parentDivID);
 	            var chartDivRect = chartDiv.node().getBoundingClientRect();
 	            vis.margin = {
 	                top: chartDivRect.height * 0.1,
@@ -1556,6 +1611,12 @@
 	                    }).attr('class', 'swatch-label').text(text);
 	                });
 	            }
+	        }
+	    }, {
+	        key: 'removeVis',
+	        value: function removeVis() {
+	            var vis = this;
+	            d3.select(vis.parentDivID).select("svg").remove();
 	        }
 	    }]);
 
@@ -1824,6 +1885,12 @@
 	            // Track the previous total so that you can animate even if 100% was skipped over as happens with rapid
 	            // slider movement
 	            vis.prevTotal = _state2.default.sliderTotal;
+	        }
+	    }, {
+	        key: 'removeVis',
+	        value: function removeVis() {
+	            var vis = this;
+	            d3.select(vis.parentDivID).select("svg").remove();
 	        }
 	    }]);
 

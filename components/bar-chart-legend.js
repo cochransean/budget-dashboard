@@ -12,9 +12,17 @@ class BarChartLegend {
     initVis() {
         const vis = this;
 
+        // Make more optimal use of space on mobile devices
+        let chartDiv;
+        if (viewWidth > mobile) {
+            chartDiv = d3.select(vis.parentDivID);
+        }
+        else {
+            chartDiv = d3.select(vis.parentDivID + "-xs");
+        }
+
         // Append svg
         // Setup margins in responsive way; actual size is determined by CSS
-        let chartDiv = d3.select(vis.parentDivID);
         let chartDivRect = chartDiv.node().getBoundingClientRect();
         vis.margin = {
             top: chartDivRect.height * 0.1,
@@ -82,6 +90,10 @@ class BarChartLegend {
         }
     }
 
+    removeVis() {
+        let vis = this;
+        d3.select(vis.parentDivID).select("svg").remove();
+    }
 }
 
 export default BarChartLegend;

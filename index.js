@@ -1,7 +1,7 @@
 require('babel-polyfill');
 require('d3');
 require('./css/style.scss');
-import { queue, json, keys } from 'd3';
+import { queue, json, keys, selectAll } from 'd3';
 import BarChart from './components/bar-chart.js';
 import BarChartLegend from './components/bar-chart-legend.js';
 import Mixer from './components/mixer.js';
@@ -9,10 +9,18 @@ import Mixer from './components/mixer.js';
 // Breakpoints
 const mobile = 991;
 
+// D3 Visualizations
+let barChart;
+let mixer;
+let barChartLegend;
 
-// Get viewport sizing
-let viewWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-let viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+// Data
+let portfolios;
+let consensus;
+
+// Variables for viewport sizing
+let viewWidth;
+let viewHeight;
 
 // load data
 queue()
@@ -20,28 +28,24 @@ queue()
     .defer(json, 'data/expert_consensus_alien.json')
     .defer(json, 'data/expert_consensus_zombie.json')
     .defer(json, 'data/expert_consensus_mutant.json')
-    .await(function(error, portfolios, consensusA, consensusB, consensusC) {
+    .await(function(error, portfoliosData, consensusA, consensusB, consensusC) {
         if (error) throw error;
 
         // Format and prepare the data
-        let consensus =  {
+        portfolios = portfoliosData;
+        consensus =  {
             "Alien Invasion": consensusA,
             "Zombie Apocalypse": consensusB,
             "Mutant Super-Villain": consensusC
         };
         prepData(portfolios, consensus);
+        createVisualizations();
 
-        // Create the visualizations
-        let barChart = new BarChart('bar-chart', portfolios, consensus);
-        let mixer = new Mixer('mixer');
-        if (viewWidth > mobile) {
-            let barChartLegend = new BarChartLegend('bar-chart-legend');
-        }
-
-        // Make more optimal use of space on mobile devices
-        else {
-            let barChartLegend = new BarChartLegend('bar-chart-legend-xs');
-        }
+        let resizeTimer;
+        window.onresize = function(){
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(resetVisualizations, 100);
+        };
     });
 
 function prepData(portfolios, consensus) {
@@ -86,6 +90,45 @@ function prepData(portfolios, consensus) {
                 capability.portfolio = portfolio.name;
             }
         }
+    });
+}
+
+function createVisualizations() {
+
+    viewWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+    viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+
+    // Create the visualizations
+    barChart = new BarChart('bar-chart', portfolios, consensus);
+    mixer = new Mixer('mixer');
+    barChartLegend = new BarChartLegend('bar-chart-legend');
+}
+
+function resetVisualizations() {
+
+    // Remove old visualizations
+    let removePromise = new Promise(function(resolve) {
+
+        // Remove the old elements
+        let oldElements = selectAll("svg");
+
+        // Check for all old elements preventing multiple firings with
+        // leftover elements or when elements have been removed but not yet re-added
+        if (oldElements.size() === 3) {
+            oldElements.remove();
+            resolve('All items deleted');
+        }
+    });
+
+    removePromise.then(function() {
+
+        // Update dimensions
+        viewWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+        viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+
+        barChart.initVis();
+        mixer.initVis();
+        barChartLegend.initVis();
     });
 }
 

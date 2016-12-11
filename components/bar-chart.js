@@ -283,12 +283,10 @@ class BarChart {
                     if (currentBottom >= lowLabelY) {
                         lowLabelY = currentBottom;
                     }
-                    console.log(this);
                 });
 
                 // Convert to relative coordinates and add padding
                 const padding = 5;
-                console.log(lowLabelY - vis.chartDivRect.top + padding);
                 return lowLabelY - vis.chartDivRect.top + padding;
             })
             .text(() => vis.portfolioSelected === null ? 'Portfolios': 'Capabilities');
@@ -370,6 +368,11 @@ class BarChart {
         }
 
         vis.wrangleData();
+    }
+
+    removeVis() {
+        let vis = this;
+        d3.select(vis.parentDivID).select("svg").remove();
     }
 }
 
